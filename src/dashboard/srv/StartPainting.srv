@@ -1,0 +1,5 @@
+string paint_process
+string TimeSpan
+int32 coat_number
+---
+bool res

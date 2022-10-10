@@ -1,0 +1,5 @@
+arm_ctrl_navigate/PathStamped input_curve
+
+---
+
+arm_ctrl_navigate/PathStamped output_curve

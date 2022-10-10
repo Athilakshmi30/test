@@ -1,0 +1,4 @@
+<launch>
+	<node pkg="ccs_lite_joystick" name="ccs_lite_joystick" type="JoystickNode.py" output="log">
+	</node>
+</launch>

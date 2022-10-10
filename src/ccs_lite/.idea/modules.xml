@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/ccs_lite.iml" filepath="$PROJECT_DIR$/.idea/ccs_lite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ccs_lite_msgs/.idea/ccs_lite_msgs.iml" filepath="$PROJECT_DIR$/../ccs_lite_msgs/.idea/ccs_lite_msgs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../mir_enclosure/.idea/mir_enclosure.iml" filepath="$PROJECT_DIR$/../mir_enclosure/.idea/mir_enclosure.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,5 @@
+bool isFeasible
+bool isCompleted
+
+
+

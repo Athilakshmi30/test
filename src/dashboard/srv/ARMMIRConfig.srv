@@ -1,0 +1,7 @@
+string speed
+int32 obstacle_range
+string device
+
+---
+
+bool mir_config

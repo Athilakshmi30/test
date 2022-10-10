@@ -1,0 +1,47 @@
+<launch>
+       <!--<include file="/home/salai/Axalta_Project/axalta_ws/src/axalta_mir_robot_ur10e_kdl_moveit_config/launch/demo.launch" />-->
+    <!--<include file="/home/robotics/axalta_ws/src/axalta_mir_robot_ur10e_trac_ik_moveit_config/launch/demo.launch" />-->
+
+    <include file="/home/axalta_ws/src/axalta_mir250_robot_ur10e_moveit_config/launch/demo.launch" />
+
+    <node pkg="arm_tf_publisher" type="path_tf_broadcaster" name="path_tf_broadcaster" clear_params="true" output="log"></node>
+  
+    <node pkg="arm_tf_publisher" type="add_frame.py" name="add_frame" clear_params="true" output="log"></node>
+  
+    <node pkg="open3d_ros_pointcloud_conversion" type="lib_cloud_conversion_between_Open3D_and_ROS.py" name="lib_cloud_conversion_between_Open3D_and_ROS" clear_params="true" output="log"></node>
+
+    <node pkg="arm_tf_publisher" type="transform_cloud.py" name="transform_cloud" clear_params="true" output="log"></node>
+
+    <node pkg="pointcloud_process" type="trajectory_type_convertor.py" name="trajectory_type_convertor" clear_params="true" output="log"></node> 
+
+    <node pkg="pointcloud_process" type="quaternion_calculation.py" name="quaternion_calculation" clear_params="true" output="log"></node>
+
+    <node pkg="pointcloud_process" type="point_cloud_filter" name="point_cloud_filter" clear_params="true" output="log"></node>
+
+    <node pkg="pointcloud_process" type="reorient_wrong_normals" name="reorient_wrong_normals" clear_params="true" output="log"></node>
+
+    <node pkg="pointcloud_process" type="tf_tcp_pose.py" name="tf_tcp_pose" clear_params="true" output="log"></node>       
+
+    <node pkg="pointcloud_process" type="range_filter_after_tf.py" name="range_filter_after_tf" clear_params="true" output="log"></node>
+
+    <node pkg="pointcloud_process" type="transform_cloud_points_along_normals" name="transform_cloud_points_along_normals" clear_params="true" output="screen"></node>   
+
+    <node pkg="pointcloud_process" type="path_planning.py" name="path_planning" clear_params="true" output="screen"></node>
+
+    <node pkg="pointcloud_process" type="calculate_end_effector_orientation" name="calculate_end_effector_orientation" clear_params="true" output="screen"></node>  
+
+    <!-- <node pkg="trajectory_planning" type="trajectory_planning_service" name="trajectory_planning_service" clear_params="true" output="screen"></node>
+
+    <node pkg="trajectory_planning" type="trajectory_executor" name="trajectory_executor" clear_params="true" output="screen"></node>  -->
+
+    <node pkg="rtde_python" type="final_sendData_ur.py" name="final_sendData_ur" clear_params="true" output="screen"></node>
+
+    <node pkg="rtde_python" type="final_receData_ur.py" name="final_receData_ur" clear_params="true" output="screen"></node> 
+
+    <node pkg="rtde_python" type="robot_dashboard.py" name="robot_dashboard" clear_params="true" output="screen"></node>
+
+    
+
+
+</launch>
+

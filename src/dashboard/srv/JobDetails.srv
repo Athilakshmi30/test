@@ -1,0 +1,4 @@
+string operating_mode
+string mir_paintbooth_location
+---
+bool response

@@ -1,0 +1,8 @@
+<launch>
+
+
+  <!--<node pkg="arm_ctrl_navigate" type="arm_control.py" name="arm_control" clear_params="true" output="log"></node>-->
+  <node pkg="arm_tf_publisher" type="path_tf_broadcaster" name="path_tf_broadcaster" clear_params="true" output="log"></node>
+  
+  
+</launch>

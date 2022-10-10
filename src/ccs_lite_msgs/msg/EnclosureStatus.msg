@@ -1,0 +1,2 @@
+ccs_lite_msgs/Door lidarDoor
+ccs_lite_msgs/Door mirDoor

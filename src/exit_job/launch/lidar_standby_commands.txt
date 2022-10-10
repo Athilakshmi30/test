@@ -1,0 +1,3 @@
+reinitialize
+set_config_param operating_mode "STANDBY"
+reinitialize

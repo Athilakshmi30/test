@@ -1,0 +1,6 @@
+bool sealer_coat_feasiblity
+bool base1_coat_feasiblity
+bool base2_coat_feasiblity
+bool clear1_coat_feasiblity
+bool clear2_coat_feasiblity
+

@@ -1,0 +1,1 @@
+CustomTrajectoryPoint[] trajectory

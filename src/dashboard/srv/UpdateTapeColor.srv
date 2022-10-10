@@ -1,0 +1,5 @@
+string tape_color
+string LAB
+bool isTemp
+---
+bool isUpdated

@@ -1,0 +1,7 @@
+<launch>
+
+
+  <node pkg="data_logging" type="log_manipulator.py" name="log_manipulator" clear_params="true" output="log"></node>
+  
+
+</launch>

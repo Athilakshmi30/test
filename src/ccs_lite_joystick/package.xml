@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>ccs_lite_joystick</name>
+  <version>0.0.0</version>
+  <description>The ccs_lite_joystick package</description>
+  <maintainer email="padmanaban.rob@gmail.com">Padmanaban</maintainer>
+  <license>BSD</license>
+  <author email="padmanaban.rob@gmail.com">Padmanaban</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>ccs_lite_msgs</build_depend>
+  <build_depend>rospy</build_depend>
+  <exec_depend>ccs_lite_msgs</exec_depend>
+  <exec_depend>rospy</exec_depend>
+
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

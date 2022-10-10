@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: axalta_mir250_robot_ur10e
+    relative_path: urdf/axalta_mir250_model_ur10.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/axalta_robot_model_ur10e.srdf
+  CONFIG:
+    author_name: asd
+    author_email: asd@gmail.com
+    generated_timestamp: 1664525484

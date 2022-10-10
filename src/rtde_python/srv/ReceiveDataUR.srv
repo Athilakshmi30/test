@@ -1,0 +1,8 @@
+geometry_msgs/PoseArray trajectory_fk
+arm_ctrl_navigate/Path current_coat_path
+arm_ctrl_navigate/Path current_coat_path_transformed
+
+
+---
+
+arm_ctrl_navigate/ListEachPoint list_each_point

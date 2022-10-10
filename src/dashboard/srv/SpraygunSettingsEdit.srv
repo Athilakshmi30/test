@@ -1,0 +1,14 @@
+string name 
+float64 air_pressure
+int32 no_of_layers
+int32 coat_number
+float64 traverse_speed
+float64 index
+float64 gun_distance1
+float32 delay
+float64 left_offset
+float64 right_offset
+float64 top_offset
+float64 bottom_offset
+---
+bool is_edited

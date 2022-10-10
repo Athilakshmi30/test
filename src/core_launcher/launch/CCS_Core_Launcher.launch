@@ -1,0 +1,18 @@
+<launch>
+    
+    <include file="/home/axalta_ws/src/status_check/launch/status_check.launch" />
+    <include file="/home/axalta_ws/src/emergency/launch/emergency.launch" />-->
+    <!--<include file="/home/axalta_ws/src/lidar_ouster/launch/lidar_node.launch" />-->
+    <include file="/home/axalta_ws/src/mir/launch/mir.launch" />
+    <include file="/home/axalta_ws/src/mir/launch/mir_sub.launch" /> 
+    <include file="/home/axalta_ws/src/ccs_lite_communicate/launch/ccs_lite.launch" />
+    <include file="/home/axalta_ws/src/main_package/launch/main_package.launch" />
+    <!--<include file="/home/axalta_ws/src/rtde_python/launch/rtde_python.launch" />-->
+    
+    <!--<include file="/home/axalta_ws/src/report/launch/report.launch" />-->
+    <!--<include file="/home/axalta_ws/src/sqe/launch/sqe.launch" />-->
+    <!-- <include file="/home/axalta_ws/src/arm_tf_publisher/launch/tf_pub.launch" /> -->
+
+    <!--<include file="/home/axalta_ws/src/data_logging/launch/data_logging.launch" />-->
+    <include file="/home/axalta_ws/src/dashboard/launch/dashboard.launch" />
+</launch>

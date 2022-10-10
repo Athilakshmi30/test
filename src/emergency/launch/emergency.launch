@@ -1,0 +1,8 @@
+<launch>
+
+
+  <node pkg="emergency" type="emergency_handle.py" name="emergency_handle" output="log"></node>
+  
+  
+  
+</launch>

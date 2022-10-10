@@ -1,0 +1,9 @@
+<launch>
+
+
+  <node pkg="status_check" type="staus_check_node" name="staus_check_node" clear_params="true" output="log"></node>
+  <node pkg="status_check" type="get_process_status_server" name="get_process_status_server" clear_params="true" output="log"></node>
+  
+  <rosparam file="$(find status_check)/config/data.yaml" />
+
+</launch>

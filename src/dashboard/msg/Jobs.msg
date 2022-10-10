@@ -1,0 +1,23 @@
+bool ObjectIdentificationDone
+bool SurfaceMappingDone
+bool TrajectoryPlanningDone
+bool PaintingDone
+bool ExitJobDone
+bool RestartJobDone
+bool ImageStitchingDone
+bool ImageSegmentationDone
+bool FeasibilityCheckDone
+bool isManuallyCropped
+bool ScanningDone
+bool MIRTargetPositionReached
+bool PointCloudGenerated
+bool ArmScanningPositionReached
+bool ArmPaintingPositionReached
+coatStatus BaseCoat1
+coatStatus BaseCoat2
+coatStatus SealerCoat
+coatStatus ClearCoat1
+coatStatus ClearCoat2
+
+
+

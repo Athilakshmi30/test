@@ -1,0 +1,6 @@
+<launch>
+
+ 
+  <node pkg="main_package" type="main_call.py" name="main_call" clear_params="true" output="screen"></node>
+
+</launch>

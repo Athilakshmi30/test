@@ -1,0 +1,12 @@
+ProcessFlag mir_home_to_pos_move
+ProcessFlag path_planning
+ProcessFlag base_coat1
+ProcessFlag base_coat2
+ProcessFlag mir_pos_to_home_move_first
+ProcessFlag mir_home_to_pos_move_second
+ProcessFlag sealer_coat
+ProcessFlag mir_pos_to_home_move_second
+ProcessFlag mir_home_to_pos_move_clear
+ProcessFlag clear_coat1
+ProcessFlag clear_coat2
+ProcessFlag mir_pos_to_home_move_finish

@@ -1,0 +1,10 @@
+<launch>
+
+
+  
+  <node pkg="arm_ctrl_navigate" type="arm_service.py" name="arm_service" clear_params="true" output="log"></node>
+  
+  <node pkg="arm_ctrl_navigate" type="mir_back_home.py" name="mir_back_home" clear_params="true" output="log"></node>
+  
+  
+</launch>

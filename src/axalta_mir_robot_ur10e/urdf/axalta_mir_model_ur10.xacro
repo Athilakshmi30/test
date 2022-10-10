@@ -1,0 +1,184 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="axalta_robot_model_ur10e">
+
+
+<xacro:include filename="$(find ur_description)/urdf/inc/ur10e_macro.xacro" /> 
+
+
+<xacro:ur10e_robot prefix="" safety_limits="true"/>
+
+  <material name="white">
+    <color rgba="1 1 1 1"/>
+  </material>
+  
+    <material name="black">
+    <color rgba="0 0 0 1.0"/>
+  </material>
+  
+  <material name="LightGrey">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+
+<link name="mir_link">
+<visual>
+    <geometry>
+      <mesh filename="package://mir_description/meshes/visual/MIR200_base.stl" />
+    </geometry>
+     <material name="LightGrey" />
+  </visual>
+  <collision>
+    <geometry>
+      <mesh filename="package://mir_description/meshes/collision/MIR200_base.stl" />
+    </geometry>
+        <material name="LightGrey" />
+  </collision>
+ </link>
+
+<link name="box1">
+<visual>
+    <origin xyz="0.45 -0.3 -0.185" rpy="${3*pi/2} ${pi} 0"/>
+    <geometry>
+      <mesh filename="package://axalta_mir_robot_ur10e/meshes/Dummy_Chassis.dae" scale="0.001 0.001 0.001"/>
+    </geometry>
+
+  </visual>
+  <collision>
+    <origin xyz="0.45 -0.3 -0.185" rpy="${3*pi/2} ${pi} 0"/>
+    <geometry>
+      <mesh filename="package://axalta_mir_robot_ur10e/meshes/Dummy_Chassis.dae" scale="0.001 0.001 0.001"/>
+    </geometry>
+   
+  </collision>
+ </link>
+
+<link name="wall">
+<visual>
+   <geometry>
+     <box size="3.0 0.2 2.0"/>
+    </geometry>
+    <material name="black"/>
+</visual>
+<collision>
+   <geometry>
+     <box size="3.0 0.2 2.0"/>
+    </geometry>
+    <material name="black"/>
+</collision>
+</link>
+
+
+<link name="wheel1">
+<visual>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</visual>
+<collision>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</collision>
+</link>
+
+<link name="wheel2">
+<visual>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</visual>
+<collision>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</collision>
+</link>
+
+<link name="wheel3">
+<visual>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</visual>
+<collision>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</collision>
+</link>
+
+<link name="wheel4">
+<visual>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</visual>
+<collision>
+   <geometry>
+     <cylinder length="0.05" radius="0.1"/>
+    </geometry>
+    <material name="black"/>
+</collision>
+</link>
+
+<joint name="mir_box1_joint" type="fixed" >
+   <parent link="mir_link" />
+   <child link="box1" />
+   <origin xyz="-0.04 -0.01 0.54" rpy="0 0 3.1416"/>
+</joint>
+
+<joint name="mir_wheel1_joint" type="fixed" >
+   <parent link="mir_link" />
+   <child link="wheel1" />
+   <origin xyz="-0.3 -0.23 0.1" rpy="-1.6 0 0"/>
+</joint>
+
+<joint name="mir_wheel2_joint" type="fixed" >
+   <parent link="mir_link" />
+   <child link="wheel2" />
+   <origin xyz="-0.3 0.23 0.1" rpy="-1.6 0 0"/>
+</joint>
+
+<joint name="mir_wheel3_joint" type="fixed" >
+   <parent link="mir_link" />
+   <child link="wheel3" />
+   <origin xyz="0.3 -0.23 0.1" rpy="-1.6 0 0"/>
+</joint>
+
+<joint name="mir_wheel4_joint" type="fixed" >
+   <parent link="mir_link" />
+   <child link="wheel4" />
+   <origin xyz="0.3 0.23 0.1" rpy="-1.6 0 0"/>
+</joint>
+
+<joint name="box1_ur10e_joint" type="fixed" >
+   <parent link="box1" />
+   <child link="base_link" />
+     <origin xyz="-0.04 -0.01 0.115" rpy="0 0 3.1416"/>
+   <pose>-0 0 0 0 0 0</pose>
+</joint> 
+
+<joint name="wall_joint" type="fixed">
+   <parent link="box1" />
+   <child link="wall" />
+     <origin xyz="0 0.4507 0.45" rpy="0 0 3.1416"/>
+   <pose>0 0 0 0 0 0</pose>
+</joint>
+
+</robot>
+
+
+
+   
+   
+  
+    
+
+
+

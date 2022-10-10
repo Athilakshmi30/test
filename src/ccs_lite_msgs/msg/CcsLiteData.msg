@@ -1,0 +1,7 @@
+ccs_lite_msgs/GpsData gspData
+ccs_lite_msgs/UltrasonicData ultrasonicData
+string joystickData
+ccs_lite_msgs/ProximityData proximityData
+ccs_lite_msgs/PmsData pmsData
+ccs_lite_msgs/EnclosureStatus enclosureStatusData
+ccs_lite_msgs/TemperatureHumidityData temperatureHumidityData

@@ -1,0 +1,9 @@
+<launch>
+
+
+  
+  <node pkg="exit_job" type="exit_job.py" name="exit_job" clear_params="true" output="log"></node>
+  <node pkg="exit_job" type="lidar_standby.py" name="lidar_standby" clear_params="true" output="log"></node>
+  
+  
+</launch>

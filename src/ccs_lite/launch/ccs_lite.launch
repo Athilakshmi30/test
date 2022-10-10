@@ -1,0 +1,40 @@
+<launch>
+	<node pkg="ccs_lite" name="ccs_lite" type="Main.py" output="log">
+	</node>
+
+	<node pkg="surface_measurement" name="surface_measurement" type="Main.py" output="log">
+	</node>
+
+	<node pkg="enclosure" name="enclosure" type="Main.py" output="log">
+	</node>
+
+	<node pkg="spray_control" name="spray_control" type="Main.py" output="log">
+	</node>
+
+	<node pkg="ultrasonic_sensor" name="ultrasonic_sensor" type="Main.py" output="log">
+	</node>
+
+	<node pkg="optical_flow_sensor" name="optical_flow_sensor" type="Main.py" output="log">
+	</node>
+
+	<node pkg="camera" name="camera" type="Main.py" output="log">
+	</node>
+
+	<node pkg="ir_sensor" name="ir_sensor" type="Main.py" output="log">
+	</node>
+
+	<node pkg="temp_humid" name="temp_humid" type="Main.py" output="log">
+	</node>
+
+	<node pkg="gps" name="gps" type="Main.py" output="log">
+	</node>
+
+	<node pkg="joystick" name="joystick" type="Main.py" output="log">
+	</node>
+
+	<node pkg="emergency_stop" name="emergency_stop" type="Main.py" output="log">
+	</node>
+
+	<node pkg="power_management" name="power_management" type="Main.py" output="log">
+	</node>
+</launch>

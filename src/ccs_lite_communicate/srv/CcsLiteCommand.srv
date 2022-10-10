@@ -1,0 +1,3 @@
+ccs_lite_msgs/CcsLiteCmd cmd
+---
+bool resp

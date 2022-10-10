@@ -1,0 +1,2 @@
+std_msgs/Float32 temperatureValue
+std_msgs/Float32 humidityValue

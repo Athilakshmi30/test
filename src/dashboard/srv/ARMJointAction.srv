@@ -1,0 +1,4 @@
+string motor_power_action
+
+---
+bool is_success

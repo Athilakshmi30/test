@@ -1,0 +1,10 @@
+float64 source_x
+float64 source_y
+float64 source_z
+float64 trans_x
+float64 trans_y
+float64 trans_z
+float64 trans_quat_x
+float64 trans_quat_y
+float64 trans_quat_z
+float64 trans_quat_w

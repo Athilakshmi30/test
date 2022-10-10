@@ -1,0 +1,5 @@
+bool sealer
+bool base1
+bool base2
+bool clear1
+bool clear2

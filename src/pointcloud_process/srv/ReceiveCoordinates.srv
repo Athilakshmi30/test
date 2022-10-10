@@ -1,0 +1,7 @@
+float64 topleftx
+float64 toplefty
+float64 bottomrightx
+float64 bottomrighty
+---
+bool response
+

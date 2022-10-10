@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro"
+       name="mir_200" >
+
+  <!-- MiR100 base -->
+  <xacro:include filename="$(find mir_description)/urdf/include/mir_200_v1.urdf.xacro" />
+  <xacro:include filename="$(find mir_description)/urdf/include/common.gazebo.xacro" />
+
+  <xacro:mir_200 prefix=""/>
+  <xacro:controller_plugin_gazebo robot_namespace=""/>
+
+
+</robot>

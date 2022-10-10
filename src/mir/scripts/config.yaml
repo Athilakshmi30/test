@@ -1,0 +1,6 @@
+auth :  "Basic QWRtaW46OGM2OTc2ZTViNTQxMDQxNWJkZTkwOGJkNGRlZTE1ZGZiMTY3YTljODczZmM0YmI4YTgxZjZmMmFiNDQ4YTkxOA=="
+web_sess_id : "dd0lo2gha4t5aug9tp3bkphsi0"
+map_name : "KochiRoboticsLab"
+ip : "192.168.12.20"
+host : "https://192.168.12.20/api/v2.0.0/"
+

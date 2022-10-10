@@ -1,0 +1,8 @@
+<launch>
+  
+  <node pkg="mir" type="MIR_MovetoDest_Node.py" name="move_to_destination_node" clear_params="true" output="log"></node>
+  <!-- <node pkg="mir" type="MIR_Map.py" name="mir_map_node" output="log"></node> -->
+  <node pkg="mir" type="MIR_Status_Node.py" name="mir_status_node" clear_params="true" output="log"></node>
+  <!--<node pkg="mir" type="joystick_ros.py" name="joystick_ros_node" output="log"></node>-->
+
+</launch>

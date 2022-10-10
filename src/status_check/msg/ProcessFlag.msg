@@ -1,0 +1,4 @@
+bool process_ready
+bool process_active
+bool process_completed
+bool process_error

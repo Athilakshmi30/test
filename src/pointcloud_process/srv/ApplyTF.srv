@@ -1,0 +1,6 @@
+arm_ctrl_navigate/Path in_path
+string coat_name
+float64 speed
+float64 delay
+---
+arm_ctrl_navigate/Path out_path

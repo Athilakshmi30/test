@@ -1,0 +1,12 @@
+1. incomplete rows
+
+2. horizontal rows with vertical in black panel.
+      - pcd segmenting RANSAC
+      - calculate normals seperately
+      - integrating pathplanning complete    
+ 
+2a. five coats perfect path
+
+3. smooth movement without jerk, velocity/accel
+
+4. BLEND RADIUS ISSUE***********

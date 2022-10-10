@@ -1,0 +1,5 @@
+string wifi_name
+string wifi_ssid
+string wifi_pwd
+---
+bool wifi_connected

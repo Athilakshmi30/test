@@ -1,0 +1,6 @@
+arm_ctrl_navigate/ListEachPoint list_each_point
+moveit_msgs/RobotTrajectory trajectory
+
+---
+
+bool completed

@@ -1,0 +1,7 @@
+reinitialize
+get_sensor_info
+set_config_param beta.bloom_reduction_enable false
+set_config_param signal_multiplier 1
+set_config_param lidar_mode 2048x10
+set_config_param azimuth_window [120000,240000]
+reinitialize

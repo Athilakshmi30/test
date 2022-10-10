@@ -1,0 +1,8 @@
+<launch>
+  <rosparam file="$(find lidar_ouster)/config/paintjobprocessparams.yaml" />  
+  <node pkg="lidar_ouster" type="lidar_node" name="lidar_node" output="log"></node>
+  <node pkg="lidar_ouster" type="pc2try.py" name="pc2try" output="log"></node>
+  <node pkg="lidar_ouster" type="pointCloudFilter" name="pointCloudFilter" output="log"></node>
+  <node pkg="lidar_ouster" type="surface_modelling_node" name="surface_modelling_node" output="log"></node>
+  <node pkg="lidar_ouster" type="path_planner" name="path_planner" output="log"></node>
+</launch>

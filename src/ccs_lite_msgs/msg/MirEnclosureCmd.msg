@@ -1,0 +1,1 @@
+ccs_lite_msgs/Door mirDoor

@@ -1,0 +1,5 @@
+<launch>
+
+<node pkg="mir" type="MIR_Map.py" name="mir_map_node" output="log"></node>
+
+</launch>

@@ -1,0 +1,8 @@
+bool SealerCoat_isCompleted
+bool BaseCoat1_isCompleted
+bool BaseCoat2_isCompleted
+bool ClearCoat1_isCompleted
+bool ClearCoat2_isCompleted
+bool Feasibility_done
+bool Trajectory_done
+bool Painting_done
