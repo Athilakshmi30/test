@@ -38,4 +38,4 @@ controller_list:
     default: True
     type: FollowJointTrajectory
     joints:
-      wrist_3_joint
+      []

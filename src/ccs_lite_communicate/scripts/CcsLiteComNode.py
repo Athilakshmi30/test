@@ -8,17 +8,21 @@ from std_msgs.msg import Bool,String ,Float32
 from ccs_lite_msgs.msg import CcsLiteData, PmsData, ProximityData, TemperatureHumidityData, UltrasonicData, GpsData,Joystick, EnclosureStatus,EmergencyData
 from ccs_lite_msgs.msg import SprayGunCmd, LidarEnclosureCmd, MirEnclosureCmd, CcsLiteCmd
 from ccs_lite_communicate.srv import *
+import WebsocketROSClient as ros_ws
+# ws_client = ros_ws.ws_client('192.168.12.45',9090)
+# ws_client.connect()
+
 class CcsLiteCom:
     def __init__(self):
         rospy.init_node('ccs_lite_comm', anonymous=False)
         rospy.Subscriber('/ccsLiteCom', CcsLiteData, self.ccsLiteCom_callback)
         rospy.Subscriber('/ccs_lite_emergency', EmergencyData, self.emergency_callback)
-        
+        self.b_l = Bool()
         self.ccsLite = CcsLiteData()
         self.ccsLiteCmd = CcsLiteCmd()
         self.ccsLiteCmd.paint_gun_action = False
-        self.ccsLiteCmd.lidar_door_action = True
-        self.ccsLiteCmd.mir_door_action = True
+        self.ccsLiteCmd.lidar_door_action = False
+        self.ccsLiteCmd.mir_door_action = False
         self.emergency_data = EmergencyData()
         s = rospy.Service('ccs_lite_command', CcsLiteCommand, self.handle_lite_cmd)
         rospy.set_param('axalta/ccscore/ccs_lite_communicate_EMERGENCY',False)
@@ -46,7 +50,9 @@ class CcsLiteCom:
     def com_start(self):    
         rate = rospy.Rate(10)
         cmd_pub = rospy.Publisher('/ccs_lite_cmd', CcsLiteCmd, queue_size=10)
-        pub = rospy.Publisher('corepms', PmsData, queue_size=10)#
+        # ws_client.publish('/ccs_lite_cmd',self.ccsLiteCmd)
+        pub_wsl = rospy.Publisher('sample_pub', Bool, queue_size=10)#
+        pub = rospy.Publisher('corepms', Float32, queue_size=10)#
         pub1 = rospy.Publisher('coregps', String, queue_size=10)#
         pub2 = rospy.Publisher('corejoystick', String, queue_size=10)#
         pub3 = rospy.Publisher('coretemp',Float32, queue_size=10)#
@@ -65,7 +71,7 @@ class CcsLiteCom:
                 print(rospy.get_param("axalta/ccscore/ccs_lite_communicate_EMERGENCY"))
                 prev = self.emergency_data.emergencyDetect.data    
             cmd_pub.publish(self.ccsLiteCmd)
-            pub.publish(self.ccsLite.pmsData)
+            pub.publish(self.ccsLite.pmsData.voltage)
             gps_str = "latitude: " + str(self.ccsLite.gspData.latitude) + " longitude: " + str(self.ccsLite.gspData.longitude)
             pub1.publish(gps_str)
             pub2.publish(self.ccsLite.joystickData)
@@ -74,6 +80,7 @@ class CcsLiteCom:
             #pub4.publish(lite.ccsLite.ultrasonicData 
             pub5.publish(self.ccsLite.proximityData.proximityDetect)
             pub6.publish(self.ccsLite.enclosureStatusData)
+            pub_wsl.publish(self.b_l)
             rate.sleep()
 
     def com_restart(self):

@@ -3,5 +3,6 @@
  
   <node pkg="dashboard" type="login_server.py" name="login_server" clear_params="true" output="screen"></node>
   <node pkg="dashboard" type="ui_communicator.py" name="ui_communicator" clear_params="true" output="screen"></node>
+  <node pkg="dashboard" type="reset_handler.py" name="reset_handler" clear_params="true" output="screen"></node>
   <rosparam file="$(find dashboard)/config/dashboard_persistent_settings.yaml" />
 </launch>

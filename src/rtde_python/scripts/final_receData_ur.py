@@ -26,11 +26,12 @@ from tf import transformations as t
 rospy.set_param("Execute_coat", "None")
 rospy.set_param("Z_Level","None")
 rospy.set_param("robot_state","power_off")
+rospy.set_param("isEmergencyStopped","not_pressed")
 list_result = []
 trigger_points_ = []
 point_flag_list_all_ = ListEachPoint()
 start_validate = False
-
+connect_rtde_recv = False
 
 
 rospy.set_param("validating_coat", "None")
@@ -74,7 +75,7 @@ def compare(moveit_ik_path, trajectory_path, updated_trajectory_path):
                     
                     # testing needed
                     
-                    if abs(traj_point.x-moveit_point.position.x)<0.005 and abs(traj_point.y-moveit_point.position.y)<0.005 and abs(traj_point.z-moveit_point.position.z)<0.005:
+                    if abs(traj_point.x-moveit_point.position.x)<0.002 and abs(traj_point.y-moveit_point.position.y)<0.002 and abs(traj_point.z-moveit_point.position.z)<0.002:
                         #print("traj_point 2",traj_point)
                         #list_result.append(count)
                         pt = [up_traj_point.x, up_traj_point.y, up_traj_point.z]
@@ -120,7 +121,7 @@ def compare(moveit_ik_path, trajectory_path, updated_trajectory_path):
     # print("point_flag_list_all",point_flag_list_all)
     # print("point_flag_list_all",len(point_flag_list_all))
 
-    print("trigger_points len", len(trigger_points))
+    print("trigger_points len", trigger_points)
     return trigger_points, point_flag_list_all
 
 
@@ -136,7 +137,7 @@ def rece_process():
 
     rospy.loginfo("final_receData_ur node up and running... ")
     while not rospy.is_shutdown():
-        global start_validate
+        global start_validate,connect_rtde_recv
         check_robot_on = False
         if rospy.get_param("robot_state")=='power_on':
             rtde_IO = rtde_io.RTDEIOInterface("192.168.12.30")  
@@ -152,19 +153,28 @@ def rece_process():
         extra_point_skip_flag = False
         forced_trigger_off = False
         forced_trigger_off_timer_flag = False
-        start_seconds = 0
+
         skip_point =0
-        if start_validate:
+        emergency_stopped = False
+        if not connect_rtde_recv:
             rtde_r = rtde_receive.RTDEReceiveInterface("192.168.12.30")
             print("Robot rtde_receive conntected")
+            connect_rtde_recv = True            
+        if start_validate:
             rtde_IO.setSpeedSlider(1.0)
             prev_pose = rtde_r.getActualTCPPose()
             for trigger_point in trigger_points_:
     
                 while True:
-                    current_seconds = rospy.get_time()    
+                    emergency_stopped = rtde_r.isEmergencyStopped()
+                    # Check for EmergencyStopped
+                    if emergency_stopped:
+                        rospy.set_param("isEmergencyStopped","pressed")
+                        trigger_off(rtde_IO)
+                        break
+                    
+                    #current_seconds = rospy.get_time()    
                     robot_pose = rtde_r.getActualTCPPose()
-    
                     # Skipping the second and third trigger point from trigger on
                     if extra_point_skip_flag:
                         print("inside extra skip point")
@@ -214,9 +224,20 @@ def rece_process():
     
                         break
                     prev_pose = robot_pose
-                if(forced_trigger_off):
+                if forced_trigger_off:
                     break
-    
+
+                if emergency_stopped:
+                    print("e Stop")
+                    #print("rtde_r.isEmergencyStopped()",rtde_r.isEmergencyStopped())
+                    #print("rtde_r.getRobotMode()",rtde_r.getRobotMode())
+
+                    while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
+                        print("Waiting for Emergency to release")
+                        
+                    rospy.set_param("isEmergencyStopped","released")                    
+                    break    
+                
             start_validate = False
             new_robot_pose = rtde_r.getActualTCPPose() 
             print("Z_Level",new_robot_pose[2])
@@ -226,6 +247,16 @@ def rece_process():
             rtde_IO.setSpeedSlider(0.67) 
             #rtde_IO.disconnect()
             rtde_r.disconnect()
+            connect_rtde_recv = False
+        elif rtde_r.isEmergencyStopped():
+            rospy.set_param("isEmergencyStopped","pressed")
+            while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
+                print("Waiting for Emergency to release")     
+            rospy.set_param("isEmergencyStopped","released")  
+            rtde_r.disconnect()
+            connect_rtde_recv = False
+                              
+
         rate.sleep()
     rospy.spin()
 

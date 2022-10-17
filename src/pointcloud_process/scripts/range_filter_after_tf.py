@@ -82,12 +82,12 @@ def reconstructedCallBack(msg):
         #points_list.append([x+0.198 , y+0.762   , z -0.4236,data[3]])  
         #colourless_point_list.append([x+0.198, y+0.762 , z -0.4236]) #0.6 for black panel 36 inches
 
-        points_list.append([x, y   , z ,data[3]])  
-        colourless_point_list.append([x, y , z]) #0.6 for black panel 36 inches
+        points_list.append([x-0.034, y   , z ,data[3]])  
+        colourless_point_list.append([x-0.034, y , z]) #0.6 for black panel 36 inches
 
 
-    maxx = maxx -0.04
-    minx = minx-0.04
+    maxx = maxx-0.034
+    minx = minx-0.034
     maxz = maxz 
     minz = minz     
     """y = miny

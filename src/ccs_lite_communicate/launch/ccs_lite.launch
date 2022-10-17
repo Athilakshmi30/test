@@ -2,7 +2,7 @@
 
 
   <!--<node pkg="ccs_lite_communicate" type="ccs_lite_node.py" name="ccs_lite" output="log"></node>-->
-  <node pkg="ccs_lite_communicate" type="CcsLiteComNode.py" name="ccs_lite_comm" clear_params="true" output="log"></node>
+  <node pkg="ccs_lite_communicate" type="CcsLiteComNode.py" name="ccs_lite_comm" clear_params="true" output="screen"></node>
   <node pkg="ccs_lite_communicate" type="videoread.py" name="videoread" clear_params="true" output="log"></node>
   <node pkg="ccs_lite_communicate" type="rostocvimage.py" name="rostocvimage" clear_params="true" output="log"></node>
   <node pkg="ccs_lite_communicate" type="videoread1.py" name="videoread1" clear_params="true" output="log"></node>

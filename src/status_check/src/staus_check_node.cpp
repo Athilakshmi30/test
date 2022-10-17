@@ -8,6 +8,7 @@
 #include <bits/stdc++.h>
 #include <string>  
 #include <iostream>
+#include "ccs_lite_msgs/PmsData.h"
 using namespace std;
 
 status_check::stats mir;
@@ -159,7 +160,7 @@ int main(int argc, char **argv)
   cout<<"im here_3"<<endl;
   ros::Subscriber mir_batt_sub = n.subscribe("/mir_battery_percentage",10,mirbatteryCallback);
   cout<<"im here_4"<<endl;
-  ros::Subscriber main_batt_sub = n.subscribe("/pms_battery",10,mainbatteryCallback);
+  ros::Subscriber main_batt_sub = n.subscribe("/corepms",10,mainbatteryCallback);
 
   ros::Subscriber temp_sub = n.subscribe("/coretemp",10,tempCallback);
 

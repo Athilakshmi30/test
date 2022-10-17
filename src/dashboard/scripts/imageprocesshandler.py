@@ -116,6 +116,11 @@ def function_current_process_start_Segmentation(lab_value_string):
         rospy.set_param("axalta/ccscore/dashboard/IMAGE_SEGMENTATION_DONE",True)
         rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Area identification has completed")
         rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
+
+    else:
+        rospy.set_param("axalta/ccscore/dashboard/IMAGE_SEGMENTATION_DONE",True)
+    
+
         
     
 def handle_segmented_image_img(req):
@@ -128,37 +133,50 @@ def handle_segmented_image_img(req):
             objectArea1 = SegmentedImageResponse()
             
             if not is_ManuallyCropped:
-                 path_segmented_image = "/home/axalta_ws/img/SegmentedImage.png"
-                 rospy.loginfo("Path of image:")
-                 rospy.loginfo(path_segmented_image)
+                if(rospy.get_param("Windows/Segmentation_check")):
+                    path_segmented_image = "/home/axalta_ws/img/SegmentedImage.png"
+                    rospy.loginfo("Path of image:")
+                    rospy.loginfo(path_segmented_image)
 
-                 with open(path_segmented_image, "rb") as img_file:
-                     objarea_string = base64.b64encode(img_file.read())
-                 objectArea1.ImageData = str(objarea_string)
+                    with open(path_segmented_image, "rb") as img_file:
+                        objarea_string = base64.b64encode(img_file.read())
+                    objectArea1.ImageData = str(objarea_string)
+                else:
+                    rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Area identification has Failed")
+                    rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
+                    path_segmented_image = "/home/axalta_ws/img/noImage.png"
+                    rospy.loginfo("Path of image:")
+                    rospy.loginfo(path_segmented_image)
+
+                    with open(path_segmented_image, "rb") as img_file:
+                        objarea_string = base64.b64encode(img_file.read())
+                    objectArea1.ImageData = str(objarea_string)
+
               
             else:
-                 rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Updating changes..")
-                 rospy.set_param("axalta/ccscore/dashboard/IsManuallyCropped",True)
                 
-                 if os.path.isfile("/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply"):
-                    os.remove("/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply")
-                  
-                 os.system("cp /mnt/c/Users/axalta/Desktop/shared/pointcloud/pointcloud_manualsegmented.ply /home/axalta_ws/pointcloud/")
-
-                 path_cropped_image_ = "/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply"
-
-                 os.system("cp /home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply /home/axalta_ws/pointcloud/crop_paint_output.ply")
-                 
-                 front_view_new.Snapshot(path_cropped_image_)
-     
-                 path_cropped_image_path = "/home/axalta_ws/img/manual_cropped_front_view_image.png"
-
-                 print("Path of image:")
-                 print(path_cropped_image_path)
+                    rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Updating changes..")
+                    rospy.set_param("axalta/ccscore/dashboard/IsManuallyCropped",True)
                     
-                 with open(path_cropped_image_path, "rb") as img_file:
-                           objarea_string = base64.b64encode(img_file.read())
-                 objectArea1.ImageData = str(objarea_string)
+                    if os.path.isfile("/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply"):
+                        os.remove("/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply")
+                    
+                    os.system("cp /mnt/c/Users/axalta/Desktop/shared/pointcloud/pointcloud_manualsegmented.ply /home/axalta_ws/pointcloud/")
+
+                    path_cropped_image_ = "/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply"
+
+                    os.system("cp /home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply /home/axalta_ws/pointcloud/crop_paint_output.ply")
+                    
+                    front_view_new.Snapshot(path_cropped_image_)
+        
+                    path_cropped_image_path = "/home/axalta_ws/img/manual_cropped_front_view_image.png"
+
+                    print("Path of image:")
+                    print(path_cropped_image_path)
+                        
+                    with open(path_cropped_image_path, "rb") as img_file:
+                            objarea_string = base64.b64encode(img_file.read())
+                    objectArea1.ImageData = str(objarea_string)
             
             return objectArea1          
         except Exception as e:

@@ -1,4 +1,4 @@
-WSL/Windows/LAB: [110, 164, 164]
+WSL/Windows/LAB: [1111]
 WSL/Windows/LAB_SET: false
 Windows/Reconstruction_check: false
 Windows/Segmentation_check: false
@@ -130,9 +130,10 @@ axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealer coat: 490.0
 axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealercoat: 490.0
 axalta/ccscore/dashboard/SURFACE_MAPPING_DONE: false
 axalta/ccscore/dashboard/TAPE_COLOR: "#8FB74B"
-axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY_param: false
+axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY: false
 axalta/ccscore/dashboard/password: admin
 axalta/ccscore/dashboard/username: admin
 start_trajectory_calculation: false
 axalta/ccscore/dashboard/ARMScanningPositionReached: false
 axalta/ccscore/dashboard/ARMPaintingPositionReached: false
+axalta/ccscore/ccs_lite_communicate_EMERGENCY: false

@@ -1,0 +1,4 @@
+[ZoneTransfer]
+ZoneId=3
+ReferrerUrl=https://github.com/ros-drivers/rosserial
+HostUrl=https://codeload.github.com/ros-drivers/rosserial/zip/refs/heads/noetic-devel

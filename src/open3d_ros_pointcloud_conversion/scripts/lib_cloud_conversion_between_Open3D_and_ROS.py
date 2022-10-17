@@ -40,8 +40,7 @@ convert_rgbFloat_to_tuple = lambda rgb_float: convert_rgbUint32_to_tuple(
 
 # Convert the datatype of point cloud from Open3D to ROS PointCloud2 (XYZRGB only)
 def convertCloudFromOpen3dToRos(open3d_cloud, frame_id="odom"):
-    rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Trajectory Planning is in progress...")
-    rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
+
     # Set "header"
     header = Header()
     header.stamp = rospy.Time.now()

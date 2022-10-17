@@ -85,7 +85,7 @@ class SurfaceHandler():
 
         rospy.set_param('axalta/ccscore/dashboard/EXIT_JOB_DONE', True)
         rospy.set_param('axalta/ccscore/dashboard/EXIT_JOB_TRIGGER', True)
-        rospy.set_param("axalta/ccscore/dashboard/LIDARSTART", True)
+        #rospy.set_param("axalta/ccscore/dashboard/LIDARSTART", True)
 
     def initiate_painting(self, paint_proc, coat_num):
         #since we are adding seperate service for exit,commenting this lines

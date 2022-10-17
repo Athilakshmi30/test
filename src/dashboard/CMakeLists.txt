@@ -216,6 +216,7 @@ catkin_install_python(PROGRAMS
    scripts/mock_application.py
    scripts/login_page.py
    scripts/try_node.py
+   scripts/reset_handler.py
    #scripts/sample_class.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

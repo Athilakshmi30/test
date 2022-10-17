@@ -13,7 +13,7 @@ from rtde_python.srv import *
 import threading
 from std_msgs.msg import Bool
 hostename_robot = "192.168.12.30"
-dashboard_client = dashboard_client.DashboardClient(hostename_robot)
+dashboard_Client = dashboard_client.DashboardClient(hostename_robot)
 rospy.set_param("robot_state","power_off")
 
 def start_capture():
@@ -35,12 +35,21 @@ def call_ur_program(program_name):
     # dashboard_client.send(f_program_load)
     # result = dashboard_client.receive()
     # rospy.loginfo(result)
-    dashboard_client.loadURP(program_name)
+    dashboard_Client.loadURP(program_name)
     rospy.loginfo("Program loaded")
-    dashboard_client.play()
+    rospy.loginfo(program_name)
+    if(program_name == "normal_home_scanning_start.urp"):
+        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm is Moving to the Scanning Position..")
+        rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
+
+    if(program_name == "Scanning_last_paint_home.urp"):
+        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm is Moving to the Painting Position..")
+        rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
+
+    dashboard_Client.play()
                 
     time.sleep(0.5)
-    while dashboard_client.running():
+    while dashboard_Client.running():
         pass
         #print("Scanning Program Running ...")
 
@@ -50,27 +59,31 @@ def handle_start_robot(req):
     res = False
     print("req",req)
     if (req.request):
-        dashboard_client.connect(2000)
-        if dashboard_client.isConnected():
-            print("connected and started")
-            dashboard_client.powerOn()
-            time.sleep(5)
-            dashboard_client.brakeRelease()
-            print("Ensure it is in normal home")
-            while (dashboard_client.robotmode() != u'Robotmode: RUNNING'):
-                pass 
-            #time.sleep(25)
+        while True:
             try:
-                
-                call_ur_program("normal_home_scanning_start.urp")
-                print("Program finished")
-                time.sleep(1)
-                res = True
-                rospy.set_param("axalta/ccscore/dashboard/ARMScanningPositionReached",True)                
-
-            except Exception as e: 
-                rospy.loginfo("Error",e)
-                res = False  
+                dashboard_Client.connect(2000)
+                if dashboard_Client.isConnected():
+                    print("connected and started")
+                    dashboard_Client.powerOn()
+                    time.sleep(5)
+                    dashboard_Client.brakeRelease()
+                    print("Ensure it is in normal home")
+                    while (dashboard_Client.robotmode() != u'Robotmode: RUNNING'):
+                        pass 
+                    #time.sleep(25)
+                    try:
+                        
+                        call_ur_program("normal_home_scanning_start.urp")
+                        print("Program finished")
+                        time.sleep(1)
+                        res = True
+                        rospy.set_param("axalta/ccscore/dashboard/ARMScanningPositionReached",True)  
+                        break              
+                    except Exception as e: 
+                        rospy.loginfo("Error",e)
+                        res = False  
+            except RuntimeError:
+                print("Waiting for Robot to turn on")        
 
         return StartRobotResponse(res)
 
@@ -80,7 +93,7 @@ def handle_start_scanning(req):
                 t1 = threading.Thread(target=start_capture)
                 t1.start()
                 
-                time.sleep(13)
+                time.sleep(20)
                 rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Scanning is in progress..")
                 rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
                 #extProc = sp.Popen(['python','/home/robotics/Open3D-0.9.0/examples/Python/ReconstructionSystem/sensors/realsense_recorder.py','--record_imgs']) 
@@ -112,6 +125,8 @@ def handle_move_to_painting(req):
 
                 call_ur_program("Scanning_last_paint_home.urp")
                 print("Program finished")
+                rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm has Reached Painting Position")
+                rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
                 time.sleep(2)
                 print("Please attach paintgun and wait for trajectory calculation and painting to complete--------------------") 
                
@@ -170,6 +185,35 @@ def start_robot():
         pub_arm_painting_pos_status.publish(arm_painting_pos_status)
 
 
+        print("rospy.get_param(",rospy.get_param("isEmergencyStopped"))
+        if rospy.get_param("isEmergencyStopped")=='released':
+            try:
+                dashboard_Client.connect(2000)
+                if dashboard_Client.isConnected():
+                    print("contect")
+                    #time.sleep(10)
+                    dashboard_Client.powerOff()
+                    print("Shut down")         
+                    time.sleep(5)       
+                    dashboard_Client.powerOn()
+                    print("Power On")
+                    time.sleep(10)
+                    try:   
+                        dashboard_Client.connect(2000)
+                        if dashboard_Client.isConnected():
+                            print("dashboard_Client.isConnected()")
+                            dashboard_Client.brakeRelease()
+                            while (dashboard_Client.robotmode() != u'Robotmode: RUNNING'):
+                                pass 
+                            rospy.set_param("isEmergencyStopped","not_pressed")
+                    except RuntimeError:
+                        print("Waiting for Robot to turn on")
+                else:
+                    print("dashboard_Client.isConnected() False")
+            except Exception as e: 
+                rospy.loginfo("Error",e)
+
+        rate.sleep()
     rospy.spin()
 
 if __name__ == "__main__":

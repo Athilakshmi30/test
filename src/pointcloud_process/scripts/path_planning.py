@@ -357,11 +357,11 @@ class PathPlanning():
         # Get cloud data from ros_cloud
         field_names = [field.name for field in ros_cloud.fields]
         #print(ros_cloud.data[0:100])
-        print(field_names)
+        #print(field_names)
         cloud_data = list(point_cloud2.read_points(
             ros_cloud, skip_nans=True, field_names=field_names))
 
-        print(cloud_data)
+        #print(cloud_data)
         # Check empty
         open3d_cloud = o3d.geometry.PointCloud()
         if len(cloud_data) == 0:
@@ -1564,14 +1564,15 @@ class PathPlanning():
 
         bottom_row_skipped = False
         top_row_skipped = False
-
-        
+      
+        '''
         # logic for adding min x and max x with filling bottom and top rows with curvature
-        
-        
+        print("len(data_row_list)",len(data_row_list))
+        #print("data_row_list[1]",data_row_list[1])   
+             
         # Loop for adding X Max and Xmin depending on threshold_half_main_row_x
         for ind_, row_ in enumerate(data_row_list):
-                    #print("row_",row_)
+                    print("row_",row_)
                     left_pt_x = row_[0][0]
                     left_pt_y = row_[0][1]
                     next_left_pt_x = row_[1][0]
@@ -1581,29 +1582,23 @@ class PathPlanning():
                     next_right_pt_x = row_[-2][0]
                     next_right_pt_y = row_[-2][1]
                     
-                    #print("-----------------------------")
-                    #print("left_pt_x",left_pt_x)
-                    #print("right_pt_x",right_pt_x)
-                    #print("-----------------------------")
                     width_current_row = abs(right_pt_x - left_pt_x)
                     threshold_half_main_row_x=(maxx - minx)/2
-                    #time.sleep(4)
-                    #print("thresh half xmax - xmin",threshold_half_main_row_x)
-                    #print("width_current_row",width_current_row)
-                    #print("width_x",width_x)
-                    #print("if float(width_current_row) > float(width_x)/2  :" , float(width_current_row) > float(width_x)/2)
-                    
-                    # if row width is less than maxx -minx then row will be ignored
-                    if width_current_row < threshold_half_main_row_x :
-                        #print("Row ignored for xmax and xmin")
-                        if ind_== len(data_row_list)-1:
-                            bottom_row_skipped = True
-                        if ind_== 0:
-                            top_row_skipped = True                            
+                    if ind_== len(data_row_list)-1:
+                        bottom_row_skipped = True
+                    if ind_== 0:
+                        top_row_skipped = True 
+
+                    # if row width is greater than threshold_half_main_row_x then row will be skiped
+                    if width_current_row > threshold_half_main_row_x :                           
                         continue
                     
                     # modifying the left point of row with minimum value
-                    if minx < left_pt_x:
+                    print("minx",minx)
+                    print("left_pt_x",left_pt_x)
+                    
+                    print("minx - left_pt_x",minx - left_pt_x)
+                    if minx - left_pt_x < -0.01:
                         min_x_left_pt_x = copy.deepcopy(row_[0])
                         min_x_left_pt_x[0] = minx
                         diff_left_x = left_pt_x - next_left_pt_x
@@ -1624,8 +1619,11 @@ class PathPlanning():
                         #print("Before adding minimum x ", minx_maxx_data_row_list[ind_])
                         minx_maxx_data_row_list[ind_].insert(0,min_x_left_pt_x)
                         #print("After adding minimum x ", minx_maxx_data_row_list[ind_])
+
+                    print("maxx",maxx)
+                    print("right_pt_x",right_pt_x)
                         
-                    if maxx > right_pt_x:
+                    if maxx - right_pt_x > 0.01:
                         max_x_right_pt_x = copy.deepcopy(row_[-1])
                         max_x_right_pt_x[0] = maxx
                         diff_right_x = right_pt_x - next_right_pt_x
@@ -1633,21 +1631,22 @@ class PathPlanning():
                         #print("diff_right_x",diff_right_x)
                         #print("diff_right_y",diff_right_y)
                         percentage_x_change_right = ((abs(diff_right_x))/(abs(diff_right_x) + abs(diff_right_y)))*100
-                        #print("percentage_x_change",percentage_x_change_right)
+                        print("percentage_x_change",percentage_x_change_right)
                         proportional_y_right = ((100*(maxx - right_pt_x))/(percentage_x_change_right)) + right_pt_x - maxx
                         #print("diff_right_y",diff_right_y)
                         #print("proportional_y_right",proportional_y_right)
                         diff_right_y = right_pt_y - next_right_pt_y
                         if diff_right_y > 0:
-                            max_x_right_pt_x[1] = max_x_right_pt_x[1] + proportional_y_right
-                        else:
                             max_x_right_pt_x[1] = max_x_right_pt_x[1] - proportional_y_right
+                        else:
+                            max_x_right_pt_x[1] = max_x_right_pt_x[1] + proportional_y_right
                         #print("Before adding maximum x ", minx_maxx_data_row_list[ind_])
                         minx_maxx_data_row_list[ind_].append(max_x_right_pt_x)
                         #print("After adding maximum x ", minx_maxx_data_row_list[ind_])
 
         #time.sleep(20)
-        
+        '''
+        '''
         # Loop for modifying bottom row
         if bottom_row_skipped:
             bottom_row_index = minx_maxx_data_row_list[-1]
@@ -1869,7 +1868,7 @@ class PathPlanning():
         
 
 
-             
+        '''
         
 
         # logic to reduce the intermediate points
@@ -1916,7 +1915,7 @@ class PathPlanning():
         #print("len of drop_minx_maxx_data_row_list ",len(drop_minx_maxx_data_row_list))
         # print("minx_maxx_data_row_list",minx_maxx_data_row_list)
         # time.sleep(4)
-        for all_pt in minx_maxx_data_row_list:  # data_row_list:#minx_maxx_data_row_list:#
+        for all_pt in data_row_list:  # data_row_list:#minx_maxx_data_row_list:#
             for pts in all_pt:
                 pts.append(0)
 
@@ -1924,7 +1923,7 @@ class PathPlanning():
         newly_arranged_data_row_list = []
         #print("data_row_list ----------------------  ",data_row_list)
         # enumerate(data_row_list):#enumerate(minx_maxx_data_row_list):
-        for indx, row in enumerate(minx_maxx_data_row_list):
+        for indx, row in enumerate(data_row_list):
             #print("length of row", len(row))
             # time.sleep(1)
             arr_row = []
@@ -1959,7 +1958,7 @@ class PathPlanning():
             if(len(data_row_list)-2 == idx):
                 print(row)    '''
 
-        print("order_list : ", order_list)
+        #print("order_list : ", order_list)
 
         ord_data_row_list = [None] * \
             (len(order_list)+len(newly_arranged_data_row_list))

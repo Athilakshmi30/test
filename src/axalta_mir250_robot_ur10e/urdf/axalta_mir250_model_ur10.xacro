@@ -121,7 +121,7 @@
 <joint name="box1_ur10e_joint" type="fixed" >
    <parent link="box1" />
    <child link="base_link" />
-     <origin xyz="0 0 0.1217" rpy="0 0 3.1416"/>
+     <origin xyz="0.0 0 0.1217" rpy="0 0 3.1416"/>
    <pose>-0 0 0 0 0 0</pose>
 </joint> 
 

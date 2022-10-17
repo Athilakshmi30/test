@@ -9,6 +9,8 @@ import rtde_receive
 from arm_ctrl_navigate.msg import Plannedpath, PathStamped, Path, JointPath, JointValues, ListEachPoint, EachPoint
 from rtde_python.srv import SendDataUR,SendDataURResponse
 import rtde_io
+from multiprocessing import Process, Lock
+mutex = Lock()
 """
 rtde_r = rtde_receive.RTDEReceiveInterface("192.168.12.16")
 
@@ -32,6 +34,7 @@ orientation:
 rospy.set_param("user_req_speed", 200.00)
 rospy.set_param("Execute_coat", "None")
 rospy.set_param("validating_coat", "None")
+rospy.set_param("reconnecting_rtde_control", "start")
 # rtde_io
 #rtde_c.moveJ([0, -1.57,0, -1.57,  3.14,0], 0.1, 0.5,False)
 
@@ -68,13 +71,70 @@ pt_flag_recev = False
 def cartesian_speed_to_angluar_accel_relation(x, d, e, f):
     return d*(x**2)+e*x + f
 
+def handle_reconnect(home_z_lev,z_vel):
+    #time.sleep(5)
+    print("insdie handle funtion")
+    connected= False
+
+    try:
+        #mutex.acquire()
+        print("Trying to reconnect rtde_control")
+        rtde_c = rtde_control.RTDEControlInterface("192.168.12.30")
+        rospy.set_param("reconnectinon_control","done")
+        connected = rtde_c.isConnected() 
+        print("Reconnected with rtde_control")
+        l_path = []
+        l_total_path = []
+        if (z_vel>home_z_lev):
+            print("z_vel is more")
+            while z_vel>home_z_lev:
+                l_path = [-0.07220063689110005, -0.6352368820749019, z_vel, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.25,0.03,False]
+                l_total_path.append(l_path)
+                z_vel -= 0.1
+        else:
+            print("z_vel is less")
+            while z_vel<home_z_lev:
+                l_path = [-0.07220063689110005, -0.6352368820749019, z_vel, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.25,0.03,False]
+                l_total_path.append(l_path)
+                z_vel += 0.1
+        l_path = [-0.07220063689110005, -0.6352368820749019, home_z_lev, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.2,0.0,False]
+        l_total_path.append(l_path) 
+        print("Reach")
+        rtde_c.moveL(l_total_path)   
+        rospy.set_param("Z_Level","None")  
+        home_path_total_path = []
+        home_path = []
+        #if (rospy.get_param("exec_clear2")==True):
+        #    print("reaced for clear2 point")  
+        home_path=[-0.059201013422566895, -2.2724411416161576, 2.463431733600692, -3.497628681519415, 0.18430169841810295, 0.23541727599859907,0.3,0.2,0.0,False]
+        home_path_total_path.append(home_path) 
+        rtde_c.moveJ(home_path_total_path) 
+        #mutex.release()  
+        print("Sending Data Completed")
+        rtde_c.disconnect()
+        print("reconnected is true")
+        rospy.set_param("reconnecting_rtde_control", "end")
+        #time.sleep(30)
+    except RuntimeError:
+        #mutex.release()
+        rospy.set_param("reconnecting_rtde_control", "start")
+        print("Error in reconnecting..")
+    finally:
+        pass
+        #mutex.release()
+    
+
 
 def send_data(pt_flag_list_seq, lines):
+    rospy.set_param("reconnecting_rtde_control", "start")
+    rospy.set_param("reconnectinon_control","not_done")
     rtde_c = rtde_control.RTDEControlInterface("192.168.12.30")
     d, e, f = 1.9223265776494836e-05, -0.0013521065486013259, 0.13120863101353641
     user_req_speed = float(rospy.get_param("user_req_speed"))
     a = cartesian_speed_to_angluar_accel_relation(user_req_speed, d, e, f)
     #print("Calculated angular acceleration is : ", a)
+
+    
     v = 1.57
     a = 2.3
     total_path = []
@@ -115,7 +175,7 @@ def send_data(pt_flag_list_seq, lines):
         elif (pt[0]== 1) and (pt[-1]==2):
             #print("--------------------12---------------------")
             if len(pt)>2:
-                new_val_br = br_11
+                new_val_br = br_start_1_end_1
                 new_step_count = new_val_br/(len(pt)-2)
                 for i in pt[1:-1]:
                     new_val_br = new_val_br - new_step_count
@@ -144,40 +204,76 @@ def send_data(pt_flag_list_seq, lines):
     #print("total_path: ", total_path)
     print("Sending joint value to ur ...")
     rtde_c.moveJ(total_path)
+
     # rtde_c.disconnect()
-    data_send = True
-    
-    
+
     while rospy.get_param("Z_Level") == "None":
         print("Didn't received updated z_vel")
-    print("Received updated z_vel")
+    #print("Received updated z_vel")
     z_vel = rospy.get_param("Z_Level")
     home_z_lev = 0.8573396491929234
-    l_path = []
-    l_total_path = []
-    if (z_vel>home_z_lev):
-        print("Logic is not added for z_vel>home_z_lev")
+
+    emg_pressed_flag = False
+    time.sleep(0.5)
+    while rospy.get_param("isEmergencyStopped")=='pressed':
+        print("Waiting for Emergency to release")
+    time.sleep(0.5)    
+    while rospy.get_param("isEmergencyStopped")=='released':
+        print("Waiting for Robot to Turn on")
+        emg_pressed_flag = True
+        
+    if emg_pressed_flag:
+        rtde_c.disconnect()
+        print("Inside emg loop")
+        print("rospy.get_param",rospy.get_param("reconnecting_rtde_control"))
+        while rospy.get_param("reconnecting_rtde_control")=='start':
+            rospy.set_param("reconnecting_rtde_control", "wait")
+            print("Created a new process")
+            p = Process(target = handle_reconnect,args=(home_z_lev,z_vel,))
+            p.start()
+            t_end = time.time() + 5
+            #while time.time() < t_end:
+                
+            while rospy.get_param("reconnecting_rtde_control")=='wait':
+                if time.time() > t_end and rospy.get_param("reconnectinon_control")=='not_done':
+                    rospy.set_param("reconnecting_rtde_control", "start")
+                    break
+                continue            
+            #p.terminate()
     else:
-        while z_vel<home_z_lev:
-            l_path = [-0.07220063689110005, -0.6352368820749019, z_vel, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.25,0.03,False]
-            l_total_path.append(l_path)
-            z_vel += 0.1
-    l_path = [-0.07220063689110005, -0.6352368820749019, home_z_lev, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.2,0.0,False]
-    l_total_path.append(l_path) 
-    rtde_c.moveL(l_total_path)   
-    #0.8573396491929234
-    rospy.set_param("Z_Level","None")  
-    home_path_total_path = []
-    home_path = []
-    #if (rospy.get_param("exec_clear2")==True):
-    #    print("reaced for clear2 point")  
-    home_path=[-0.059201013422566895, -2.2724411416161576, 2.463431733600692, -3.497628681519415, 0.18430169841810295, 0.23541727599859907,0.3,0.2,0.0,False]
-    home_path_total_path.append(home_path) 
-    rtde_c.moveJ(home_path_total_path)   
 
-    print("Sending Data Completed")
-    rtde_c.disconnect()
-
+        l_path = []
+        l_total_path = []
+        if (z_vel>home_z_lev):
+            print("z_vel is more")
+            while z_vel>home_z_lev:
+                l_path = [-0.07220063689110005, -0.6352368820749019, z_vel, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.25,0.03,False]
+                l_total_path.append(l_path)
+                z_vel -= 0.1
+        else:
+            print("z_vel is less")
+            while z_vel<home_z_lev:
+                l_path = [-0.07220063689110005, -0.6352368820749019, z_vel, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.25,0.03,False]
+                l_total_path.append(l_path)
+                z_vel += 0.1
+        l_path = [-0.07220063689110005, -0.6352368820749019, home_z_lev, -0.027486296000136207, 2.415684011057212, -1.9647414787826962,0.3,0.2,0.0,False]
+        l_total_path.append(l_path) 
+        print("Reach")
+    
+        rtde_c.moveL(l_total_path)   
+    
+        rospy.set_param("Z_Level","None")  
+        home_path_total_path = []
+        home_path = []
+        #if (rospy.get_param("exec_clear2")==True):
+        #    print("reaced for clear2 point")  
+        home_path=[-0.059201013422566895, -2.2724411416161576, 2.463431733600692, -3.497628681519415, 0.18430169841810295, 0.23541727599859907,0.3,0.2,0.0,False]
+        home_path_total_path.append(home_path) 
+        rtde_c.moveJ(home_path_total_path)   
+        print("Sending Data Completed")
+    
+        rtde_c.disconnect()
+    print("Outside loop")
 def send_process():
     global executed_sealer, executed_base1, executed_base2, executed_clear1, executed_clear2
     rospy.init_node('final_sendData_ur', anonymous=True)

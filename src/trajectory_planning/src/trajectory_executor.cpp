@@ -275,6 +275,8 @@ bool handle_start_trajectory_planning_calculation_service(trajectory_planning::S
                                                           trajectory_planning::StartTrajCalculation::Response &res)
 {
   ros::param::set("start_trajectory_calculation", true);
+  ros::param::set("axalta/ccscore/dashboard/CURRENT_PROCESS","Trajectory Planning is in progress...");
+  ros::param::set("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50);
   res.resp = true;
   return true;
 }
@@ -412,6 +414,8 @@ int main(int argc, char **argv)
 
       trajectory_calculation_completed = true;
       trajectory_calculation_completed_.data = true;
+      ros::param::set("axalta/ccscore/dashboard/CURRENT_PROCESS","Trajectory Planning has completed");
+      ros::param::set("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100);
       run = false;
     }
     bool dont_run = false;

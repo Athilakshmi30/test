@@ -69,10 +69,10 @@ class Emergency():
                 self.move_to_destination_recovery("home") 
                 rospy.set_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET",False)""" 
             try:
-                if(rospy.has_param("axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP_param") and rospy.has_param("axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY_param")):
+                if(rospy.has_param("axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP") and rospy.has_param("axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY")):
                     print("Inside Has Emergency Params")
-                    a_b = rospy.get_param('axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP_param')
-                    c_d  = rospy.get_param('axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY_param')
+                    a_b = rospy.get_param('axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP')
+                    c_d  = rospy.get_param('axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY')
                     if( a_b or c_d):
                         cmdd.lidar_door_action = True
                         cmdd.mir_door_action = True
