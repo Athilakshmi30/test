@@ -46,6 +46,7 @@ def image_callback(msg):
 def rostocvimage_restart():
     global cnt
     cnt = 0
+    rospy.set_param("axalta/ccscore/ccs_lite_communicate/rostocvimage/reset_done",True)
 
 def main():
     
@@ -54,7 +55,9 @@ def main():
     
     # Set up your subscriber and define its callback
     rospy.Subscriber(image_topic, Image, image_callback)
-    
+    while not rospy.is_shutdown():
+        if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/core_main_processes") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/core_main_processes")):
+                    rostocvimage_restart()
     # Spin until ctrl + c
     rospy.spin()
 

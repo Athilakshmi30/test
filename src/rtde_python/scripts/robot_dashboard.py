@@ -15,6 +15,7 @@ from std_msgs.msg import Bool
 hostename_robot = "192.168.12.30"
 dashboard_Client = dashboard_client.DashboardClient(hostename_robot)
 rospy.set_param("robot_state","power_off")
+rospy.set_param("isEmergencyStopped","not_pressed")
 
 def start_capture():
      
@@ -39,11 +40,11 @@ def call_ur_program(program_name):
     rospy.loginfo("Program loaded")
     rospy.loginfo(program_name)
     if(program_name == "normal_home_scanning_start.urp"):
-        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm is Moving to the Scanning Position..")
+        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic arm is moving to the scanning position..")
         rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
 
     if(program_name == "Scanning_last_paint_home.urp"):
-        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm is Moving to the Painting Position..")
+        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic arm is moving to the painting position..")
         rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
 
     dashboard_Client.play()
@@ -63,11 +64,11 @@ def handle_start_robot(req):
             try:
                 dashboard_Client.connect(2000)
                 if dashboard_Client.isConnected():
-                    print("connected and started")
+                    rospy.loginfo("connected and started")
                     dashboard_Client.powerOn()
                     time.sleep(5)
                     dashboard_Client.brakeRelease()
-                    print("Ensure it is in normal home")
+                    rospy.loginfo("Ensure it is in normal home")
                     while (dashboard_Client.robotmode() != u'Robotmode: RUNNING'):
                         pass 
                     #time.sleep(25)
@@ -75,6 +76,8 @@ def handle_start_robot(req):
                         
                         call_ur_program("normal_home_scanning_start.urp")
                         print("Program finished")
+                        rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic arm has reached the scanning position")
+                        rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
                         time.sleep(1)
                         res = True
                         rospy.set_param("axalta/ccscore/dashboard/ARMScanningPositionReached",True)  
@@ -125,8 +128,9 @@ def handle_move_to_painting(req):
 
                 call_ur_program("Scanning_last_paint_home.urp")
                 print("Program finished")
-                rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic Arm has Reached Painting Position")
-                rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
+                if(rospy.has_param("axalta/ccscore/dashboard/startSegmentationservercalled") and not rospy.get_param("axalta/ccscore/dashboard/startSegmentationservercalled")):
+                    rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robotic arm has reached painting position")
+                    rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
                 time.sleep(2)
                 print("Please attach paintgun and wait for trajectory calculation and painting to complete--------------------") 
                
@@ -178,14 +182,23 @@ def start_robot():
         else:
             arm_painting_pos_status = False
 
-        
+        if(rospy.has_param("axalta/ccscore/dashboard/robot_dashbord_restart") and rospy.get_param("axalta/ccscore/dashboard/robot_dashbord_restart")):
+               rospy.set_param("axalta/ccscore/dashboard/SCANNINGDONECHECK",False)
+               rospy.set_param("axalta/ccscore/dashboard/ReconstructionDoneCheck",False)
+               rospy.set_param("axalta/ccscore/dashboard/ARMScanningPositionReached",False)
+               rospy.set_param("axalta/ccscore/dashboard/ARMPaintingPositionReached",False)
+               rospy.set_param("axalta/ccscore/dashboard/robot_dashbord_restart",False)
+               rospy.set_param("axalta/ccscore/robot_dashboard/reset_done",True)
+            
+
+
         pub_scanning_done_status.publish(scanning_status)
         pub_reconstruction_done_status.publish(reconstruction_status)
         pub_arm_scanning_pos_status.publish(arm_scanning_pos_status)
         pub_arm_painting_pos_status.publish(arm_painting_pos_status)
 
 
-        print("rospy.get_param(",rospy.get_param("isEmergencyStopped"))
+        # print("rospy.get_param(",rospy.get_param("isEmergencyStopped"))
         if rospy.get_param("isEmergencyStopped")=='released':
             try:
                 dashboard_Client.connect(2000)

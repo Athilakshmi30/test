@@ -100,6 +100,7 @@ add_message_files(
    TapeImage.srv
    StartScanning.srv
    ArmMoveHome.srv
+   ResetFeasibilityCheck.srv
    
    
 #   Service2.srv

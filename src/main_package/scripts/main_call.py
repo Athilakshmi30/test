@@ -134,6 +134,11 @@ def status_update():
     else:
        val.MIRTargetPositionReached = False
 
+    # if(rospy.has_param("Windows/USB_Check")):
+    #   val.MIRTargetPositionReached = rospy.get_param("Windows/USB_Check")
+    # else:
+    #    val.MIRTargetPositionReached = False
+
 
 def painting_done_callback(data):
     val.PaintingDone = data.data
@@ -170,6 +175,12 @@ def coats_feasibility_data_callback(data):
      val.BaseCoat2.isFeasible = data.base2_coat_feasiblity
      val.ClearCoat1.isFeasible = data.clear1_coat_feasiblity
      val.ClearCoat2.isFeasible = data.clear2_coat_feasiblity
+     val.SealerCoat.feasibilityPercentage = data.sealer_coat_ik_percentage
+     val.BaseCoat1.feasibilityPercentage = data.base1_coat_ik_percentage
+     val.BaseCoat2.feasibilityPercentage = data.base2_coat_ik_percentage
+     val.ClearCoat1.feasibilityPercentage = data.clear1_coat_ik_percentage
+     val.ClearCoat2.feasibilityPercentage = data.clear2_coat_ik_percentage
+     
      
 def core_status_data_callback(data):
     global sts
@@ -185,6 +196,8 @@ def map_image_callback(data):
     global map_image
     map_image = data
         
+def restart_main():
+    js = ""
 
 def get_core_status():
      print("inside get_core_status")
@@ -213,11 +226,14 @@ def get_core_status():
             status_update()
         except:
             print("Execption in Main_call.py setting sleep 10 Sec")
-           
+        if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET") or rospy.has_param("axalta/ccscore/dashboard/EXIT_JOB_TRIGGER")):
+                if(rospy.get_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET") or rospy.get_param("axalta/ccscore/dashboard/EXIT_JOB_TRIGGER")):
+                    restart_main() 
         pub_map_mir.publish(map_image)
         pub_status.publish(sts)
         pub_core_joystick.publish(js)
         pub_job_progress.publish(val)
+
 
 
 if __name__ == "__main__":

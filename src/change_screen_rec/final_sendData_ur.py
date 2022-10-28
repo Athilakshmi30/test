@@ -13,6 +13,7 @@ from multiprocessing import Process, Lock
 import os
 import signal
 import subprocess
+
 mutex = Lock()
 """
 rtde_r = rtde_receive.RTDEReceiveInterface("192.168.12.16")
@@ -73,29 +74,6 @@ record_flag = False
 # a =    rad/s^2
 #d,e,f = 1.9223265776494836e-05, -0.0013521065486013259, 0.13120863101353641
 
-def restartNode():
-    print("------------------------------------restarting final send data ur node-------------------------------------")
-    global pt_flag_list_seq, recv_callback_point_flag_list, data_send, pt_flag_recev, record_flag
-    rospy.set_param("user_req_speed", 200.00)
-    rospy.set_param("Execute_coat", "None")
-    rospy.set_param("validating_coat", "None")
-    rospy.set_param("reconnecting_rtde_control", "start")
-    rospy.set_param("record_vid", "None")
-    rospy.set_param("record_vid_name", "None")
-    
-    pt_flag_list_seq = []
-    recv_callback_point_flag_list = False
-    data_send = False
-        
-    pt_flag_recev = False
-    record_flag = False
-
-    if(rospy.has_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger")):
-        rospy.set_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger",False)
-        time.sleep(1)
-        rospy.set_param("axalta/ccscore/dashboard/restart_pointcloud_and_arm_completed",True)
-        
-    
 
 def cartesian_speed_to_angluar_accel_relation(x, d, e, f):
     return d*(x**2)+e*x + f
@@ -154,18 +132,18 @@ def handle_reconnect(home_z_lev,z_vel):
     
 
 
-def send_data(pt_flag_list_seq, lines,user_req_speed):
+def send_data(pt_flag_list_seq, lines):
     rospy.set_param("reconnecting_rtde_control", "start")
     rospy.set_param("reconnectinon_control","not_done")
     rtde_c = rtde_control.RTDEControlInterface("192.168.12.30")
     d, e, f = 1.9223265776494836e-05, -0.0013521065486013259, 0.13120863101353641
-    #user_req_speed = float(rospy.get_param("user_req_speed"))
+    user_req_speed = float(rospy.get_param("user_req_speed"))
     a = cartesian_speed_to_angluar_accel_relation(user_req_speed, d, e, f)
     #print("Calculated angular acceleration is : ", a)
 
     
     v = 1.57
-    #a = 2.3
+    a = 2.3
     total_path = []
     # sequence of points are as follow 000002 001 000000000001 002 002 0001 00000000000001
     # blend radius for intermediate points 
@@ -238,10 +216,8 @@ def send_data(pt_flag_list_seq, lines,user_req_speed):
 
     # rtde_c.disconnect()
 
-    while rospy.get_param("Z_Level") == "None" and not rospy.get_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger"):
+    while rospy.get_param("Z_Level") == "None":
         print("Didn't received updated z_vel")
-        
-
     #print("Received updated z_vel")
     z_vel = rospy.get_param("Z_Level")
     home_z_lev = 0.8573396491929234
@@ -307,7 +283,6 @@ def send_data(pt_flag_list_seq, lines,user_req_speed):
     
         rtde_c.disconnect()
     print("Outside loop")
-
 def send_process():
     global executed_sealer, executed_base1, executed_base2, executed_clear1, executed_clear2, record_flag
     rospy.init_node('final_sendData_ur', anonymous=True)
@@ -316,31 +291,29 @@ def send_process():
                       handle_send_data_ur_server)
     rate = rospy.Rate(10)
     rospy.loginfo("final_sendData_ur node up and running... ")
-    rospy.set_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger",False)
+
     while not rospy.is_shutdown():
         if rospy.get_param("record_vid")== 'start' and not record_flag:
             rospy.loginfo("video started recording .....")
-            #file_name = rospy.get_param("record_vid_name")
-            #file_path = "/mnt/c/Users/axalta/Desktop/shared/video/"+str(file_name)
-            #cmd="ffmpeg -video_size 1920x1080 -framerate 30 -f x11grab -i :1 -c:v libx264 -qp 0 -preset ultrafast "+str(file_path)+".mkv -y"
-            #pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
+            file_name = rospy.get_param("record_vid_name")
+            file_path = "/home/axalta/Pavan/rec_VID/"+str(file_name)
+            cmd="ffmpeg -video_size 1920x1080 -framerate 30 -f x11grab -i :1 -c:v libx264 -qp 0 -preset ultrafast "+str(file_path)+".mkv -y"
+            pro = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, preexec_fn=os.setsid)
             record_flag = True 
         elif rospy.get_param("record_vid")== 'end' and record_flag:
-            #os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
-            #rospy.loginfo("Video recording completed")
+            os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
+            rospy.loginfo("Video recording completed")
             record_flag = False
-        elif(rospy.has_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger") and rospy.get_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger")):  
-            restartNode()  
         rate.sleep()
     rospy.spin()
-    #os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
+    os.killpg(os.getpgid(pro.pid), signal.SIGTERM)
     rospy.loginfo("Video recording completed")
 
 
 def handle_send_data_ur_server(req):
     joint_path = []
     #print("req.trajectory.joint_trajectory.points : ",req.trajectory.joint_trajectory.points)
-    print("-------------------------------------reach for send service--------------------------------------------------")
+    #print("------------------------------------------------------------------------------------------------")
     for pt in req.trajectory.joint_trajectory.points:
         #print("pt.positions : ", pt.positions)
         joint_val = []
@@ -356,7 +329,7 @@ def handle_send_data_ur_server(req):
     #print("joint_path : ",joint_path)
     #while rospy.get_param("robot_state")=='off':
     #    "Waiting for Robot to turn on in Receive"
-    send_data(_pt_flag_list_seq, joint_path,req.speed)
+    send_data(_pt_flag_list_seq, joint_path)
 
     return SendDataURResponse(True)
 

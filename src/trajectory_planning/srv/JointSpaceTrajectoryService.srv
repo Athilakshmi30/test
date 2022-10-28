@@ -3,3 +3,4 @@ geometry_msgs/Pose[] waypoints
 moveit_msgs/RobotTrajectory trajectory
 geometry_msgs/PoseArray poses_fk
 bool coat_feasibility
+float64 coat_ik_percentage

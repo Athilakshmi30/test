@@ -115,11 +115,11 @@ class PathPlanning():
         self.received_clear2 = False
         self.processed = False
 
-        self.sealer_row_index = 0.0635
-        self.base1_row_index = 0.0381
-        self.base2_row_index = 0.0508
-        self.clear1_row_index = 0.0762
-        self.clear2_row_index = 0.0762
+        #self.sealer_row_index = 0.0635
+        #self.base1_row_index = 0.0381
+        #self.base2_row_index = 0.0508
+        #self.clear1_row_index = 0.0762
+        #self.clear2_row_index = 0.0762
 
         self.fields = [PointField('x', 0, PointField.FLOAT32, 1),
                        PointField('y', 4, PointField.FLOAT32, 1),
@@ -402,7 +402,7 @@ class PathPlanning():
     def sealerCallBack(self, msg):
 
         if (not self.received_sealer):
-            print("msg.fields", msg.fields)
+            #print("msg.fields", msg.fields)
             self.point_cloud_input = msg
             pcd = self.convertCloudFromRosToOpen3dWithNormals(msg)
             o3d.io.write_point_cloud("pcd_sealer.pcd", pcd)
@@ -429,7 +429,7 @@ class PathPlanning():
 
             self.sealer_without_index_cloud = point_cloud2.create_cloud(
                 self.header, self.fields_normal, sealer_without_index_data)
-            print("Process complited")
+            print("Process completed")
             self.received_sealer = True
 
     def base1CallBack(self, msg):
@@ -587,7 +587,7 @@ class PathPlanning():
         #print("[Z RANGE = ", z_range, " ]")
         cropped_cloud = [[pt[0], pt[1], pt[2]] for pt in cloud if (
             (pt[2] < (z_range + 0.0055)) and (pt[2] > (z_range - 0.0055)))]
-        print("length ---------------------------- : ", len(cropped_cloud))
+        #print("length ---------------------------- : ", len(cropped_cloud))
 
         return cropped_cloud
 
@@ -657,11 +657,11 @@ class PathPlanning():
             depth_boolean_row = []
 
             z_range = current_z
-            print("z_range , self.max_height + 0.005 : ",
-                  z_range, self.max_height + 0.005)
+            #print("z_range , self.max_height + 0.005 : ",
+            #      z_range, self.max_height + 0.005)
             cropped_cloud = self.get_points_in_range(cloud, z_range)
 
-            print("[ITERATION] ------------------------------------ ")
+            #print("[ITERATION] ------------------------------------ ")
             if (len(cropped_cloud) > 1):
 
                 while (current_y <= self.max_depth + 0.005):
@@ -800,7 +800,7 @@ class PathPlanning():
 
         if len(X_data) == 0:
             check_z_arr = np.array(check_z)
-            print("No X,Y point data for Z = ", check_z_arr.mean())
+            #print("No X,Y point data for Z = ", check_z_arr.mean())
             new_fitted_points = np.array(new_fitted_points)
             return new_fitted_points
         # 6deg
@@ -1085,16 +1085,16 @@ class PathPlanning():
             if((abs(pt[3]) < 0.015 or abs(pt[4]) < 0.015) and abs(pt[5]) > 0.89 and abs(pt[5]) <= 1.0):
                 count_of_straightup_or_down_normals += 1
 
-        print("---------------------------------------plane end------------------------------------")
-        print("count_of_straightup_or_down_normals : ",
-              count_of_straightup_or_down_normals)
-        print("len : ", count_of_non_zero_points)
+        #print("---------------------------------------plane end------------------------------------")
+        #print("count_of_straightup_or_down_normals : ",
+        #      count_of_straightup_or_down_normals)
+        #print("len : ", count_of_non_zero_points)
         if(count_of_non_zero_points > 0.0):
             percentage = (count_of_straightup_or_down_normals /
                           float(count_of_non_zero_points))
         else:
             percentage = 0.0
-        print("percentage : ", percentage)
+        #print("percentage : ", percentage)
         if(percentage > th_percentage):
             return True
         else:
@@ -1124,8 +1124,8 @@ class PathPlanning():
                 gridded_list_zero_removed.append(plane_n)
 
         skip_last = True
-        print("len(gridded_list_zero_removed) : ",
-              len(gridded_list_zero_removed))
+        #print("len(gridded_list_zero_removed) : ",
+        #      len(gridded_list_zero_removed))
         rows = 2
         prevboolval = False
         id = 0
@@ -1143,8 +1143,8 @@ class PathPlanning():
             id = id + rows
 
         if(not skip_last):
-            print("len(gridded_list_zero_removed),id-1,id : ",
-                  len(gridded_list_zero_removed), id-1, id)
+            #print("len(gridded_list_zero_removed),id-1,id : ",
+            #      len(gridded_list_zero_removed), id-1, id)
             boolval = self.get_horizontal_planes(
                 gridded_list_zero_removed[id-1]+gridded_list_zero_removed[id], minx, miny, maxx, maxy)
             if(prevboolval):
@@ -1188,9 +1188,9 @@ class PathPlanning():
                 contains_horizontal = False
                 new_horizontal_plane_list.append(False)
 
-        print("                                                                                ")
-        print("new_horizontal_plane_list : ", new_horizontal_plane_list)
-        print("-------------------------------------------------------------------------------------------------------------------")
+        #print("                                                                                ")
+        #print("new_horizontal_plane_list : ", new_horizontal_plane_list)
+        #print("-------------------------------------------------------------------------------------------------------------------")
 
         horizontal_handled_gridded_list = []
         horizontal_plane = []
@@ -1203,7 +1203,7 @@ class PathPlanning():
 
                 miny_plane = plane[-1][1]
                 iter = maxy_plane
-                print("maxy_plane,miny_plane : ", maxy_plane, miny_plane)
+                #print("maxy_plane,miny_plane : ", maxy_plane, miny_plane)
                 copy_plane = copy.deepcopy(plane)
                 while(iter >= miny_plane):
                     row_indexBased = []
@@ -1214,17 +1214,17 @@ class PathPlanning():
 
                             row_indexBased.append(pt)
 
-                    print("before iter : ", iter)
+                    #print("before iter : ", iter)
                     iter = iter - row_index
-                    print("after iter : ", iter)
+                    #print("after iter : ", iter)
 
-                    print("len(row_indexBased) : ", len(row_indexBased))
+                    #print("len(row_indexBased) : ", len(row_indexBased))
                     copy_plane = [pt for pt in copy_plane if (
                         pt[1] < (iter + row_approx))]
 
                     if(len(row_indexBased) > 0):
 
-                        print(len(copy_plane), len(row_indexBased))
+                        #print(len(copy_plane), len(row_indexBased))
 
                         horizontal_handled_gridded_list.append(
                             [row_indexBased])
@@ -2165,26 +2165,85 @@ class PathPlanning():
                 #print("data_row_point_append.z",data_row_point_append.z)
                 #print("data_row_point_append.point_flag",data_row_point_append.point_flag)
                 #time.sleep(1)
-                count += 1
+                count_pt += 1
 
                 data_row_point_list.path_msg.append(data_row_point_append)
 
             data_row_path_list.path.append(data_row_point_list)
-        print("############################################################################################")
-        print("count", count)
-        print("without_index_data_row_list_mod",
-              len(without_index_data_row_list_mod))
-        print("############################################################################################")
+        #print("############################################################################################")
+        print("count_pt", count_pt)
+        #print("without_index_data_row_list_mod",
+        #      len(without_index_data_row_list_mod))
+        #print("############################################################################################")
         # time.sleep(2)
 
         return data_row_list_mod, data_row_path_list, without_index_data_row_list_mod
 
-    def start(self):
+    def set_parameters(self):
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_sealercoat')):
+            self.sealer_row_index = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_sealercoat')*0.001        
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat1')):
+            self.base1_row_index = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat1')*0.001 
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat2')):
+            self.base2_row_index = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat2')*0.001 
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat1')):
+            self.clear1_row_index = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat1')*0.001 
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat2')):
+            self.clear2_row_index = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat2')*0.001 
 
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_sealercoat')):
+            self.top_index_row_offset = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_sealercoat')*0.0254
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_sealercoat')):
+            self.bottom_index_row_offset = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_sealercoat')*0.0254
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_sealercoat')):
+            self.right_index_row_offset = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_sealercoat')*0.0254
+        if(rospy.has_param('axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_sealercoat')):
+            self.left_index_row_offset = rospy.get_param('axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_sealercoat')*0.0254
+
+    def restartNode(self):
+        self.received_sealer = False
+        self.received_base1 = False
+        self.received_base2 = False
+        self.received_clear1 = False
+        self.received_clear2 = False
+        self.processed = False
+
+        self.header = Header()
+        self.header.frame_id = "mir_link"
+        self.header.stamp = rospy.Time.now()
+
+        self.point_cloud_input = PointCloud2()
+        self.point_cloud_list = []
+
+        self.max_depth_added_cloud_list = []
+        self.max_depth_added_cloud = PointCloud2()
+
+        self.occlusion_removed_cloud_list = []
+        self.occlusion_removed_cloud = PointCloud2()
+
+        self.gridded_cloud = PointCloud2()
+
+        self.horizontal_cloud = PointCloud2()
+        self.sealer_data_seq_cloud = PointCloud2()
+        self.basecoat1_data_seq_cloud = PointCloud2()
+        self.basecoat2_data_seq_cloud = PointCloud2()
+        self.clearcoat1_data_seq_cloud = PointCloud2()
+        self.clearcoat2_data_seq_cloud = PointCloud2()
+
+        self.sealer_data_row_path_list = Path()
+        self.set_parameters()
+        if(rospy.has_param('axalta/ccscore/dashboard/restart_path_planning_node_trigger')):
+            rospy.set_param('axalta/ccscore/dashboard/restart_path_planning_node_trigger',False)
+            rospy.set_param('axalta/ccscore/dashboard/restart_calculate_end_effector_orientation_node_trigger',True)
+
+    def start(self):
         rate = rospy.Rate(10)
+        self.set_parameters()
         #print("Waiting for coat_process to be true")
         while not rospy.is_shutdown():
-
+   
+            if(rospy.has_param('axalta/ccscore/dashboard/restart_path_planning_node_trigger') and rospy.get_param('axalta/ccscore/dashboard/restart_path_planning_node_trigger')):
+                self.restartNode()
             # if rospy.get_param("coat_process")==True and self.received_sealer and self.received_base1 and self.received_base2 and self.received_clear1 and self.received_clear2 and not self.processed:
             ######### index always greater then 2 centimeter ################################
             # 5 for sealer,3 for base1, 4 for base2, 7 for clear 1 and clear 2

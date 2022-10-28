@@ -59,6 +59,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_service_files(
    FILES
    CcsLiteCommand.srv
+   mirDoorAction.srv
 #   Service2.srv
 )
 

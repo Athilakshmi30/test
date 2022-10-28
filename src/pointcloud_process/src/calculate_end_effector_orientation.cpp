@@ -65,6 +65,7 @@ arm_ctrl_navigate::Path quat_shifted_clear2_data_points_full;
 void sealerDataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   // std::cout << *path << std::endl;
+      int sealer_count = 0;
   if (!sealer_read)
   {
     ROS_INFO("Sealer data is processing ... ");
@@ -158,11 +159,13 @@ void sealerDataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
         quat_shifted_sealer_data_points.path_msg.push_back(sealercoat_point);
 
         sealercoatpoint_pc->points.push_back(sealerCoat_shifted_point);
+        sealer_count++;
       }
     }
 
     // outdata.close();
     // outdata2.close();
+    std::cout << " Sealer_count : " << sealer_count << std::endl; 
     std::cout << " Sealer finised " << std::endl;
 
     pcl::PCLPointCloud2 pcl_pc2_;
@@ -184,6 +187,7 @@ void sealerDataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 void base1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   // std::cout << *path << std::endl;
+      int base1_count = 0;
   if (!base1_read && sealer_read)
   {
     ROS_INFO("Base 1 data is processing ...");
@@ -196,6 +200,7 @@ void base1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
     // std::ofstream outdata2;
     // outdata2.open("/home/axalta/axalta_ws/test_normal_logic/grey_pannel_quat.txt");
     // outdata.open("/home/axalta/axalta_ws/test_normal_logic/grey_pannel_unit.txt");
+
     for (int itr = 0; itr < data_rows_base1.path.size(); itr++)
     {
       // std::cout << "Inside.." << std::endl;
@@ -274,10 +279,12 @@ void base1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
         quat_shifted_base1_data_points.path_msg.push_back(basecoat1_point);
 
         basecoat1point_pc->points.push_back(baseCoat1_shifted_point);
+        base1_count++;
       }
     }
     // outdata.close();
     // outdata2.close();
+    std::cout << " Base1_count : " << base1_count << std::endl;
     std::cout << " BaseCoat 1 finised " << std::endl;
 
     pcl::PCLPointCloud2 pcl_pc2_;
@@ -299,6 +306,7 @@ void base1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 void base2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   // std::cout << *path << std::endl;
+    int base2_count =0;
   if (!base2_read && base1_read && sealer_read)
   {
     ROS_INFO("Base 2 data is processing ...");
@@ -311,6 +319,7 @@ void base2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
     // std::ofstream outdata2;
     // outdata2.open("/home/axalta/axalta_ws/test_normal_logic/grey_pannel_quat.txt");
     // outdata.open("/home/axalta/axalta_ws/test_normal_logic/grey_pannel_unit.txt");
+
     for (int itr = 0; itr < data_rows_base2.path.size(); itr++)
     {
       // std::cout << "Inside.." << std::endl;
@@ -388,10 +397,12 @@ void base2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
         quat_shifted_base2_data_points.path_msg.push_back(basecoat2_point);
 
         basecoat2point_pc->points.push_back(baseCoat2_shifted_point);
+        base2_count++;
       }
     }
     // outdata.close();
     // outdata2.close();
+    std::cout << " Base2_count : " << base2_count << std::endl;
     std::cout << " BaseCoat 2 finised " << std::endl;
 
     pcl::PCLPointCloud2 pcl_pc2_;
@@ -413,6 +424,7 @@ void base2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 void clear1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   // std::cout << *path << std::endl;
+  int clear1_count =0;
   if (!clear1_read && base2_read && base1_read && sealer_read)
   {
     ROS_INFO("Clear 1 data is processing ...");
@@ -500,11 +512,13 @@ void clear1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
         quat_shifted_clear1_data_points.path_msg.push_back(clearcoat1_point);
 
         clearcoat1point_pc->points.push_back(clearCoat1_shifted_point);
+         clear1_count++; 
       }
     }
     std::cout << "test_count : " << test_count << std::endl;
     // outdata.close();
     // outdata2.close();
+        std::cout << " Clear1_count : " << clear1_count << std::endl;
     std::cout << " ClearCoat 1 finised " << std::endl;
 
     pcl::PCLPointCloud2 pcl_pc2_;
@@ -521,6 +535,7 @@ void clear1DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 void clear2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   // std::cout << *path << std::endl;
+  int clear2_count =0;
   if (!clear2_read && clear1_read && base2_read && base1_read && sealer_read)
   {
     ROS_INFO("Clear 2 data is processing ...");
@@ -604,9 +619,10 @@ void clear2DataCallback(const arm_ctrl_navigate::Path::ConstPtr &path)
         quat_shifted_clear2_data_points.path_msg.push_back(clearcoat2_point);
 
         clearcoat2point_pc->points.push_back(clearCoat2_shifted_point);
+        clear2_count++;
       }
     }
-
+    std::cout << " Clear2_count : " << clear2_count << std::endl;
     std::cout << " ClearCoat 2 finised " << std::endl;
 
     pcl::PCLPointCloud2 pcl_pc2_;
@@ -629,6 +645,18 @@ void restartNode(ros::NodeHandle &n)
   transformed_cloud_base_coat2 = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
   transformed_cloud_clear_coat1 = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
   transformed_cloud_clear_coat2 = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
+
+  quat_shifted_sealer_data_points_full.path.clear();
+  quat_shifted_base1_data_points_full.path.clear();
+  quat_shifted_base2_data_points_full.path.clear();
+  quat_shifted_clear1_data_points_full.path.clear();
+  quat_shifted_clear2_data_points_full.path.clear();
+
+  quat_shifted_sealer_data_points.path_msg.clear();
+  quat_shifted_base1_data_points.path_msg.clear();
+  quat_shifted_base2_data_points.path_msg.clear();
+  quat_shifted_clear1_data_points.path_msg.clear();
+  quat_shifted_clear2_data_points.path_msg.clear();
 
   sealer_read = false;
   base1_read = false;

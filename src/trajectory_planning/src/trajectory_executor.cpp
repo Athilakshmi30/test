@@ -54,9 +54,11 @@ bool base1_exec = false;
 bool base2_exec = false;
 bool clear1_exec = false;
 bool clear2_exec = false;
-
+double speed_val = 368.00;
 bool trajectory_calculation_completed = false;
 bool restart_flag = false;
+bool run = true;
+bool dont_run = false;
 std_msgs::Bool trajectory_calculation_completed_, painting_status;
 
 std::vector<double> joint_vel_g;
@@ -67,11 +69,11 @@ trajectory_planning::JointSpaceTrajectoryServiceResponse trajectory_base2;
 trajectory_planning::JointSpaceTrajectoryServiceResponse trajectory_clear1;
 trajectory_planning::JointSpaceTrajectoryServiceResponse trajectory_clear2;
 
-arm_ctrl_navigate::Path::ConstPtr sealerCoat(new arm_ctrl_navigate::Path);
-arm_ctrl_navigate::Path::ConstPtr base1Coat(new arm_ctrl_navigate::Path);
-arm_ctrl_navigate::Path::ConstPtr base2Coat(new arm_ctrl_navigate::Path);
-arm_ctrl_navigate::Path::ConstPtr clear1Coat(new arm_ctrl_navigate::Path);
-arm_ctrl_navigate::Path::ConstPtr clear2Coat(new arm_ctrl_navigate::Path);
+arm_ctrl_navigate::Path sealerCoat;
+arm_ctrl_navigate::Path base1Coat;
+arm_ctrl_navigate::Path base2Coat;
+arm_ctrl_navigate::Path clear1Coat;
+arm_ctrl_navigate::Path clear2Coat;
 
 arm_ctrl_navigate::Path sealer_wrt_mir;
 arm_ctrl_navigate::Path base1_wrt_mir;
@@ -143,8 +145,20 @@ void sealer_callback(const arm_ctrl_navigate::Path::ConstPtr &path)
   // std::cout << "reached" << std::endl;
   if (!sealer_read)
   {
-    sealerCoat = path;
-    // std::cout << "sealerCoat = " << sealerCoat << std::endl;
+    sealerCoat.path.clear();
+    std::cout<<"sealerCoat.path.size() : "<<sealerCoat.path.size()<<std::endl;
+    
+    sealerCoat.CoatSpeed = path->CoatSpeed;
+    sealerCoat.CoatName = path->CoatName ;
+    sealerCoat.IndexDelay = path->IndexDelay;
+    sealerCoat.path = path->path;
+    int count = 0;
+    for (int i = 0;i<path->path.size();i++){
+        for(int j = 0;j<path->path[i].path_msg.size();j++){
+            count++;   
+        }  
+    }
+    std::cout << "sealer_callback count = " << count << std::endl;
 
     sealer_read = true;
   }
@@ -154,7 +168,20 @@ void base1_callback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   if (!base1_read)
   {
-    base1Coat = path;
+    base1Coat.path.clear();
+    base1Coat.CoatSpeed = path->CoatSpeed;
+    base1Coat.CoatName = path->CoatName ;
+    base1Coat.IndexDelay = path->IndexDelay;
+    base1Coat.path = path->path;
+
+    int count = 0;
+    for (int i = 0;i<path->path.size();i++){
+        for(int j = 0;j<path->path[i].path_msg.size();j++){
+            count++;   
+        }  
+    }
+    std::cout << "base1_callback count = " << count << std::endl;
+
     base1_read = true;
   }
 }
@@ -162,7 +189,20 @@ void base2_callback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   if (!base2_read)
   {
-    base2Coat = path;
+    base2Coat.path.clear();
+    base2Coat.CoatSpeed = path->CoatSpeed;
+    base2Coat.CoatName = path->CoatName ;
+    base2Coat.IndexDelay = path->IndexDelay;
+    base2Coat.path = path->path;
+
+    int count = 0;
+    for (int i = 0;i<path->path.size();i++){
+        for(int j = 0;j<path->path[i].path_msg.size();j++){
+            count++;   
+        }  
+    }
+    std::cout << "base2_callback count = " << count << std::endl;
+
     base2_read = true;
   }
 }
@@ -170,7 +210,21 @@ void clear1_callback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   if (!clear1_read)
   {
-    clear1Coat = path;
+    clear1Coat.path.clear();
+    clear1Coat.CoatSpeed = path->CoatSpeed;
+    clear1Coat.CoatName = path->CoatName ;
+    clear1Coat.IndexDelay = path->IndexDelay;
+    clear1Coat.path = path->path;
+
+    int count = 0;
+    for (int i = 0;i<path->path.size();i++){
+        for(int j = 0;j<path->path[i].path_msg.size();j++){
+            count++;   
+        }  
+    }
+    std::cout << "clear1_callback count = " << count << std::endl;
+
+    
     clear1_read = true;
   }
 }
@@ -178,15 +232,37 @@ void clear2_callback(const arm_ctrl_navigate::Path::ConstPtr &path)
 {
   if (!clear2_read)
   {
-    clear2Coat = path;
+    clear2Coat.path.clear();
+    clear2Coat.CoatSpeed = path->CoatSpeed;
+    clear2Coat.CoatName = path->CoatName ;
+    clear2Coat.IndexDelay = path->IndexDelay;
+    clear2Coat.path = path->path;
+
+    int count = 0;
+    for (int i = 0;i<path->path.size();i++){
+        for(int j = 0;j<path->path[i].path_msg.size();j++){
+            count++;   
+        }  
+    }
+    std::cout << "clear2_callback count = " << count << std::endl;
+
+
     clear2_read = true;
   }
 }
 
-pointcloud_process::ApplyTFResponse caller(ros::NodeHandle &n, ros::ServiceClient &apply_tf_client, pointcloud_process::ApplyTF &srv_atf, arm_ctrl_navigate::Path::ConstPtr &inputPathPoints)
+pointcloud_process::ApplyTFResponse caller(ros::NodeHandle &n, ros::ServiceClient &apply_tf_client, pointcloud_process::ApplyTF &srv_atf, arm_ctrl_navigate::Path &inputPathPoints)
 {
 
-  srv_atf.request.in_path = *inputPathPoints;
+  int count = 0;
+  for (int i = 0;i<inputPathPoints.path.size();i++){
+      for(int j = 0;j<inputPathPoints.path[i].path_msg.size();j++){
+          count++;   
+      }  
+  }
+  std::cout << "ApplyTFResponse caller count = " << count << std::endl;
+
+  srv_atf.request.in_path = inputPathPoints;
   srv_atf.request.coat_name = "sealer";
   srv_atf.request.speed = 490;
   srv_atf.request.delay = 1.0;
@@ -195,20 +271,31 @@ pointcloud_process::ApplyTFResponse caller(ros::NodeHandle &n, ros::ServiceClien
   return srv_atf.response;
 }
 
-trajectory_planning::JointSpaceTrajectoryServiceResponse caller(ros::NodeHandle &n, ros::ServiceClient &joint_space_trajectory_client, ros::ServiceClient &custom_traj_without_index_client, trajectory_planning::JointSpaceTrajectoryService &srv_jst, trajectory_planning::CustomTrajectoryServiceWithoutIndex &srv_ctswi, arm_ctrl_navigate::Path::ConstPtr &inputPathPoints)
+trajectory_planning::JointSpaceTrajectoryServiceResponse caller(ros::NodeHandle &n, ros::ServiceClient &joint_space_trajectory_client, ros::ServiceClient &custom_traj_without_index_client, trajectory_planning::JointSpaceTrajectoryService &srv_jst, trajectory_planning::CustomTrajectoryServiceWithoutIndex &srv_ctswi, arm_ctrl_navigate::Path &inputPathPoints)
 {
-  srv_ctswi.request.path = *inputPathPoints;
-  // std::cout << "srv_ctswi : " << srv_ctswi.request.path << std::endl;
-  custom_traj_without_index_client.call(srv_ctswi);
+  int count = 0;
+  for (int i = 0;i<inputPathPoints.path.size();i++){
+      for(int j = 0;j<inputPathPoints.path[i].path_msg.size();j++){
+          count++;   
+      }  
+  }
+  std::cout << "JointSpaceTrajectoryServiceResponse caller count = " << count << std::endl;
 
+  srv_ctswi.request.path = inputPathPoints;
+  // std::cout << "srv_ctswi : " << srv_ctswi.request.path << std::endl;
+  
+  custom_traj_without_index_client.call(srv_ctswi);
+  
   ROS_INFO("type change service returned");
   std::vector<geometry_msgs::Pose> waypoints;
+  int cnt = 0;
   for (int i = 0; i < srv_ctswi.response.trajectory_response.poses.size(); i++)
   {
     waypoints.push_back(srv_ctswi.response.trajectory_response.poses[i]);
     // std::cout << srv_ctswi.response.trajectory_response.poses[i] << std::endl;
+    cnt +=1;
   }
-
+  std::cout<<"-----------------------------------------count : "<<cnt<<"---------------------------------------  "<<std::endl;
   srv_jst.request.waypoints = waypoints;
   ROS_INFO("calling trajectory service.............");
   joint_space_trajectory_client.call(srv_jst);
@@ -283,6 +370,7 @@ bool handle_start_trajectory_planning_calculation_service(trajectory_planning::S
 
 void restartNode(ros::NodeHandle &n)
 {
+  ROS_ERROR("restarting trajectory executor");
   sealer_read = false;
   base1_read = false;
   base2_read = false;
@@ -295,21 +383,103 @@ void restartNode(ros::NodeHandle &n)
   clear1_exec = false;
   clear2_exec = false;
 
+  run = true;
+  dont_run = false;
   trajectory_calculation_completed = false;
   restart_flag = false;
 
-  sealerCoat = arm_ctrl_navigate::Path::ConstPtr(new arm_ctrl_navigate::Path);
-  base1Coat = arm_ctrl_navigate::Path::ConstPtr(new arm_ctrl_navigate::Path);
-  base2Coat = arm_ctrl_navigate::Path::ConstPtr(new arm_ctrl_navigate::Path);
-  clear1Coat = arm_ctrl_navigate::Path::ConstPtr(new arm_ctrl_navigate::Path);
-  clear2Coat = arm_ctrl_navigate::Path::ConstPtr(new arm_ctrl_navigate::Path);
+  trajectory_calculation_completed_.data = false;
+  painting_status.data = false;
 
-  if (n.hasParam("axalta/ccscore/dashboard/restart_trajectory_planning_service_node_trigger"))
+  joint_vel_g.clear();
+
+  trajectory_sealer.coat_feasibility = false;
+  trajectory_base1.coat_feasibility = false;
+  trajectory_base2.coat_feasibility = false;
+  trajectory_clear1.coat_feasibility = false;
+  trajectory_clear2.coat_feasibility = false;
+
+  trajectory_sealer.coat_ik_percentage = 0.0;
+  trajectory_base1.coat_ik_percentage = 0.0;
+  trajectory_base2.coat_ik_percentage = 0.0;
+  trajectory_clear1.coat_ik_percentage = 0.0;
+  trajectory_clear2.coat_ik_percentage = 0.0;
+
+  trajectory_sealer.trajectory.joint_trajectory.points.clear();
+  trajectory_sealer.trajectory.joint_trajectory.joint_names.clear();
+  trajectory_sealer.poses_fk.poses.clear();
+
+  trajectory_base1.trajectory.joint_trajectory.points.clear();
+  trajectory_base1.trajectory.joint_trajectory.joint_names.clear();
+  trajectory_base1.poses_fk.poses.clear();
+
+  trajectory_base2.trajectory.joint_trajectory.points.clear();
+  trajectory_base2.trajectory.joint_trajectory.joint_names.clear();
+  trajectory_base2.poses_fk.poses.clear();
+
+  trajectory_clear1.trajectory.joint_trajectory.points.clear();
+  trajectory_clear1.trajectory.joint_trajectory.joint_names.clear();
+  trajectory_clear1.poses_fk.poses.clear();
+
+  trajectory_clear2.trajectory.joint_trajectory.points.clear();
+  trajectory_clear2.trajectory.joint_trajectory.joint_names.clear();
+  trajectory_clear2.poses_fk.poses.clear();
+
+  coat_completion_stats.sealer = false;
+  coat_completion_stats.base1 = false;
+  coat_completion_stats.base2 = false;
+  coat_completion_stats.clear1 = false;
+  coat_completion_stats.clear2 = false;
+
+  sealerCoat.path.clear();
+  sealerCoat.CoatSpeed = 0.0; 
+  sealerCoat.CoatName = "";
+  sealerCoat.IndexDelay = 0;
+  base1Coat.path.clear();
+  base1Coat.CoatSpeed = 0.0; 
+  base1Coat.CoatName = "";
+  base1Coat.IndexDelay = 0; 
+  base2Coat.path.clear(); 
+  base2Coat.CoatSpeed = 0.0; 
+  base2Coat.CoatName = "";
+  base2Coat.IndexDelay = 0;
+  clear1Coat.path.clear();
+  clear1Coat.CoatSpeed = 0.0; 
+  clear1Coat.CoatName = "";
+  clear1Coat.IndexDelay = 0;
+  clear2Coat.path.clear();
+  clear2Coat.CoatSpeed = 0.0; 
+  clear2Coat.CoatName = "";
+  clear2Coat.IndexDelay = 0;
+
+  sealer_wrt_mir.path.clear();
+  sealer_wrt_mir.CoatSpeed = 0.0; 
+  sealer_wrt_mir.CoatName = "";
+  sealer_wrt_mir.IndexDelay = 0;
+  base1_wrt_mir.path.clear();
+  base1_wrt_mir.CoatSpeed = 0.0; 
+  base1_wrt_mir.CoatName = "";
+  base1_wrt_mir.IndexDelay = 0; 
+  base2_wrt_mir.path.clear(); 
+  base2_wrt_mir.CoatSpeed = 0.0; 
+  base2_wrt_mir.CoatName = "";
+  base2_wrt_mir.IndexDelay = 0;
+  clear1_wrt_mir.path.clear();
+  clear1_wrt_mir.CoatSpeed = 0.0; 
+  clear1_wrt_mir.CoatName = "";
+  clear1_wrt_mir.IndexDelay = 0;
+  clear2_wrt_mir.path.clear();
+  clear2_wrt_mir.CoatSpeed = 0.0; 
+  clear2_wrt_mir.CoatName = "";
+  clear2_wrt_mir.IndexDelay = 0;
+
+
+  if (n.hasParam("axalta/ccscore/dashboard/restart_trajectory_executor_node_trigger"))
   {
-    n.setParam("axalta/ccscore/dashboard/restart_trajectory_planning_service_node_trigger", false);
+    n.setParam("axalta/ccscore/dashboard/restart_trajectory_executor_node_trigger", false);
     restart_flag = false;
     ros::Duration(0.1).sleep();
-    n.setParam("axalta/ccscore/dashboard/restart_trajectory_executor_node_trigger", true);
+    n.setParam("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger", true);
   }
 }
 
@@ -336,7 +506,7 @@ int main(int argc, char **argv)
   coat_completion_stats.clear2 = false;
 
   n.setParam("axalta/ccscore/dashboard/restart_trajectory_executor_node_trigger", false);
-
+  n.setParam("axalta/ccscore/dashboard/restart_pointcloud_and_arm_completed", false);
   ros::Rate loop_rate(10);
   ros::AsyncSpinner spinner(0);
   spinner.start();
@@ -360,13 +530,15 @@ int main(int argc, char **argv)
   ros::ServiceClient apply_tf_client = n.serviceClient<pointcloud_process::ApplyTF>("apply_tf_server");
   ros::ServiceClient receive_data_ur_client = n.serviceClient<rtde_python::ReceiveDataUR>("receive_data_ur_server");
   ros::ServiceClient send_data_ur_client = n.serviceClient<rtde_python::SendDataUR>("send_data_ur_server");
+  //ros::ServiceClient ccs_mir_door_client = n.serviceClient<ccs_lite_communication::mirDoorAction>("ccs_lite_mir_door_action_server");
   ROS_INFO("created service clients");
   trajectory_planning::JointSpaceTrajectoryService srv_jst;
   trajectory_planning::CustomTrajectoryServiceWithoutIndex srv_ctswi;
   rtde_python::SendDataUR srv_sdur;
   rtde_python::ReceiveDataUR srv_rdur;
   pointcloud_process::ApplyTF srv_atf;
-  bool run = true;
+  //ccs_lite_communicate::mirDoorAction
+  
   while (ros::ok())
   {
 
@@ -378,6 +550,7 @@ int main(int argc, char **argv)
         restartNode(n);
       }
     }
+
     ros::param::get("exec_sealer", sealer_exec);
     ros::param::get("exec_base1", base1_exec);
     ros::param::get("exec_base2", base2_exec);
@@ -390,35 +563,40 @@ int main(int argc, char **argv)
 
       ROS_INFO("Sealer Processing ... ");
       ros::param::set("Processing_coat", "sealer");
+      ros::param::set("record_vid_name", "sealer");
       trajectory_sealer = caller(n, joint_space_trajectory_client, custom_traj_without_index_client, srv_jst, srv_ctswi, sealerCoat);
       ROS_INFO("----------------------Sealer Done--------------------------------------------------------------------------------------------------------------");
 
       ROS_INFO("BaseCoat1 Processing ... ");
       ros::param::set("Processing_coat", "base1");
+      ros::param::set("record_vid_name", "base1");
       trajectory_base1 = caller(n, joint_space_trajectory_client, custom_traj_without_index_client, srv_jst, srv_ctswi, base1Coat);
       ROS_INFO("----------------------BaseCoat1 Done--------------------------------------------------------------------------------------------------------------");
 
       ROS_INFO("BaseCoat2 Processing ... ");
       ros::param::set("Processing_coat", "base2");
+      ros::param::set("record_vid_name", "base2");
       trajectory_base2 = caller(n, joint_space_trajectory_client, custom_traj_without_index_client, srv_jst, srv_ctswi, base2Coat);
       ROS_INFO("----------------------BaseCoat2 Done--------------------------------------------------------------------------------------------------------------");
       ROS_INFO("ClearCoat1 Processing ... ");
+      ros::param::set("record_vid_name", "clear1");
       ros::param::set("Processing_coat", "clear1");
       trajectory_clear1 = caller(n, joint_space_trajectory_client, custom_traj_without_index_client, srv_jst, srv_ctswi, clear1Coat);
       ROS_INFO("----------------------ClearCoat1 Done--------------------------------------------------------------------------------------------------------------");
 
       ROS_INFO("ClearCoat2 Processing ... ");
       ros::param::set("Processing_coat", "clear2");
+      ros::param::set("record_vid_name", "clear2");
       trajectory_clear2 = caller(n, joint_space_trajectory_client, custom_traj_without_index_client, srv_jst, srv_ctswi, clear2Coat);
       ROS_INFO("----------------------ClearCoat2 Done--------------------------------------------------------------------------------------------------------------");
 
       trajectory_calculation_completed = true;
       trajectory_calculation_completed_.data = true;
-      ros::param::set("axalta/ccscore/dashboard/CURRENT_PROCESS","Trajectory Planning has completed");
+      ros::param::set("axalta/ccscore/dashboard/CURRENT_PROCESS","Trajectory planning has completed");
       ros::param::set("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100);
       run = false;
     }
-    bool dont_run = false;
+    
 
     if (trajectory_calculation_completed)
     {
@@ -428,15 +606,19 @@ int main(int argc, char **argv)
       }
       if (!dont_run)
       {
+        // ccs_mir_door_client.call();
         if (sealer_exec)
         {
           sealer_wrt_mir = caller(n, apply_tf_client, srv_atf, sealerCoat).out_path;
           srv_rdur.request.trajectory_fk = trajectory_sealer.poses_fk;
-          srv_rdur.request.current_coat_path = *sealerCoat;
+          srv_rdur.request.current_coat_path = sealerCoat;
           srv_rdur.request.current_coat_path_transformed = sealer_wrt_mir;
           receive_data_ur_client.call(srv_rdur);
           srv_sdur.request.list_each_point = srv_rdur.response.list_each_point;
           srv_sdur.request.trajectory = trajectory_sealer.trajectory;
+          if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealercoat"))
+            {n.getParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealercoat", speed_val);}    
+          srv_sdur.request.speed = speed_val;
           send_data_ur_client.call(srv_sdur);
           coat_completion_stats.sealer = true;
 
@@ -446,11 +628,14 @@ int main(int argc, char **argv)
         {
           base1_wrt_mir = caller(n, apply_tf_client, srv_atf, base1Coat).out_path;
           srv_rdur.request.trajectory_fk = trajectory_base1.poses_fk;
-          srv_rdur.request.current_coat_path = *base1Coat;
+          srv_rdur.request.current_coat_path = base1Coat;
           srv_rdur.request.current_coat_path_transformed = base1_wrt_mir;
           receive_data_ur_client.call(srv_rdur);
           srv_sdur.request.list_each_point = srv_rdur.response.list_each_point;
           srv_sdur.request.trajectory = trajectory_base1.trajectory;
+          if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat1"))
+            {n.getParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat1", speed_val);}  
+          srv_sdur.request.speed = speed_val;
           send_data_ur_client.call(srv_sdur);
           coat_completion_stats.base1 = true;
 
@@ -460,11 +645,14 @@ int main(int argc, char **argv)
         {
           base2_wrt_mir = caller(n, apply_tf_client, srv_atf, base2Coat).out_path;
           srv_rdur.request.trajectory_fk = trajectory_base2.poses_fk;
-          srv_rdur.request.current_coat_path = *base2Coat;
+          srv_rdur.request.current_coat_path = base2Coat;
           srv_rdur.request.current_coat_path_transformed = base2_wrt_mir;
           receive_data_ur_client.call(srv_rdur);
           srv_sdur.request.list_each_point = srv_rdur.response.list_each_point;
           srv_sdur.request.trajectory = trajectory_base2.trajectory;
+          if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat2"))
+            {n.getParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat2", speed_val);}     
+          srv_sdur.request.speed = speed_val;
           send_data_ur_client.call(srv_sdur);
           coat_completion_stats.base2 = true;
 
@@ -474,11 +662,16 @@ int main(int argc, char **argv)
         {
           clear1_wrt_mir = caller(n, apply_tf_client, srv_atf, clear1Coat).out_path;
           srv_rdur.request.trajectory_fk = trajectory_clear1.poses_fk;
-          srv_rdur.request.current_coat_path = *clear1Coat;
+          srv_rdur.request.current_coat_path = clear1Coat;
           srv_rdur.request.current_coat_path_transformed = clear1_wrt_mir;
           receive_data_ur_client.call(srv_rdur);
           srv_sdur.request.list_each_point = srv_rdur.response.list_each_point;
           srv_sdur.request.trajectory = trajectory_clear1.trajectory;
+
+          if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat1"))
+            {n.getParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat1", speed_val);}    
+          srv_sdur.request.speed = speed_val;
+                
           send_data_ur_client.call(srv_sdur);
           coat_completion_stats.clear1 = true;
 
@@ -486,40 +679,53 @@ int main(int argc, char **argv)
         }
         else
         {
-          std::cout << "waiting for execution trigger condtion " << std::endl;
+          //std::cout << "waiting for execution trigger condtion " << std::endl;
         }
       }
       else
       {
-        ROS_WARN("One or more Coats not feasible");
+        //ROS_WARN("One or more Coats not feasible");
       }
       if (trajectory_clear2.coat_feasibility && clear2_exec)
       {
         clear2_wrt_mir = caller(n, apply_tf_client, srv_atf, clear2Coat).out_path;
         srv_rdur.request.trajectory_fk = trajectory_clear2.poses_fk;
-        srv_rdur.request.current_coat_path = *clear2Coat;
+        srv_rdur.request.current_coat_path = clear2Coat;
         srv_rdur.request.current_coat_path_transformed = clear2_wrt_mir;
         receive_data_ur_client.call(srv_rdur);
         srv_sdur.request.list_each_point = srv_rdur.response.list_each_point;
         srv_sdur.request.trajectory = trajectory_clear2.trajectory;
+        if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat2"))
+          {n.getParam("axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat2", speed_val);}       
+        srv_sdur.request.speed = speed_val;
+
         send_data_ur_client.call(srv_sdur);
+                
         coat_completion_stats.clear2 = true;
         ros::param::set("exec_clear2", false);
       }
       if (!trajectory_clear2.coat_feasibility)
       {
-        ROS_WARN("clear2 coat is not feasible");
+        //ROS_WARN("clear2 coat is not feasible");
       }
     }
     if (coat_completion_stats.sealer && coat_completion_stats.base1 && coat_completion_stats.base2 && coat_completion_stats.clear1 && coat_completion_stats.clear2)
     {
       painting_status.data = true;
+      ros::param::set("axalta/ccscore/dashboard/CURRENT_PROCESS","Painting process has completed");
+      ros::param::set("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100);
     }
     coat_feas_stats.sealer_coat_feasiblity = trajectory_sealer.coat_feasibility;
     coat_feas_stats.base1_coat_feasiblity = trajectory_base1.coat_feasibility;
     coat_feas_stats.base2_coat_feasiblity = trajectory_base2.coat_feasibility;
     coat_feas_stats.clear1_coat_feasiblity = trajectory_clear1.coat_feasibility;
     coat_feas_stats.clear2_coat_feasiblity = trajectory_clear2.coat_feasibility;
+
+    coat_feas_stats.sealer_coat_ik_percentage = std::to_string((int)trajectory_sealer.coat_ik_percentage)+"%";
+    coat_feas_stats.base1_coat_ik_percentage = std::to_string((int)trajectory_base1.coat_ik_percentage)+"%";
+    coat_feas_stats.base2_coat_ik_percentage = std::to_string((int)trajectory_base2.coat_ik_percentage)+"%";
+    coat_feas_stats.clear1_coat_ik_percentage = std::to_string((int)trajectory_clear1.coat_ik_percentage)+"%";
+    coat_feas_stats.clear2_coat_ik_percentage = std::to_string((int)trajectory_clear2.coat_ik_percentage)+"%";
 
     feasibility_pub.publish(coat_feas_stats);
     coat_completion_status_pub.publish(coat_completion_stats);

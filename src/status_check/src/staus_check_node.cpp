@@ -22,6 +22,8 @@ std::string temp = "0.0";
 std::string hum = "0.0 %"; 
 std::string mir_state = "";
 status_check::stats sqe_sensors;
+status_check::stats camera_connection;
+bool reset_node = false;
 //sqe_sensors.ready = true;
 //sqe_sensors.running = true;
 //sqe_sensors.fatalerr = false;
@@ -78,11 +80,11 @@ void mirCallback(const std_msgs::String::ConstPtr& msg)
   }
 }
 
-/*void armCallback(const status_check::stats::ConstPtr& msg)
+void armCallback(const status_check::stats::ConstPtr& msg)
 {
   //ROS_INFO("I heard: [%s]", msg->data.c_str());
   arm = *msg;
-}*/
+}
 
 //void aiserviceCallback(const status_check::stats::ConstPtr& msg)
 //{
@@ -168,7 +170,7 @@ int main(int argc, char **argv)
  
   ros::Subscriber gps_sub = n.subscribe("coregps",10,gpsCallback);
 
-  //ros::Subscriber arm_sub = n.subscribe("arm_status", 10, armCallback);
+  ros::Subscriber arm_sub = n.subscribe("arm_status", 10, armCallback);
   
   //ros::Subscriber ai_sub = n.subscribe("ai_service_status", 10, aiserviceCallback);
   
@@ -180,33 +182,36 @@ int main(int argc, char **argv)
   
   while (ros::ok())
   {
-    bool m = false; 
-    if(n.hasParam("axalta/ccscore/dashboard/RESTART_CCSCORE_TRIGGER")){
-      n.getParam("axalta/ccscore/dashboard/RESTART_CCSCORE_TRIGGER",m);
-    }
-    if(m){
+
+   
+    if(n.hasParam("axalta/ccscore/ccs_lite_communicate/core_main_processes")){
+      n.getParam("axalta/ccscore/ccs_lite_communicate/core_main_processes",reset_node);
+     // n.getParam("axalta/ccscore/dashboard/EXIT_JOB_TRIGGER",exit);
+      if(reset_node){
       restartStatusCheckNode(n);
     }
+    }
+    
     
     status_check::Status_data msg;
     bool b = false;
     msg.mir = mir;
     //msg.arm = arm; //newly added
-    if(n.hasParam("axalta/ccscore/arm_service/ARM_STARTUP")){
-      n.getParam("axalta/ccscore/arm_service/ARM_STARTUP",b);
-    }
-    if(b){
-        arm.ready = true;
-        arm.running = true;
-        arm.fatalerr = false;
-        arm.remarks = "arm started";
-    }
-    else{
-        arm.ready = false;
-        arm.running = false;
-        arm.fatalerr = false;
-        arm.remarks = "arm not started";
-    }
+    // if(n.hasParam("axalta/ccscore/arm_service/ARM_STARTUP")){
+    //   n.getParam("axalta/ccscore/arm_service/ARM_STARTUP",b);
+    // }
+    // if(b){
+    //     arm.ready = true;
+    //     arm.running = true;
+    //     arm.fatalerr = false;
+    //     arm.remarks = "arm started";
+    // }
+    // else{
+    //     arm.ready = false;
+    //     arm.running = false;
+    //     arm.fatalerr = false;
+    //     arm.remarks = "arm not started";
+    // }
     ai.ready = true;
     ai.running = true;
     ai.fatalerr = false;
@@ -228,6 +233,25 @@ int main(int argc, char **argv)
     if(n.hasParam("axalta/ccscore/dashboard/TAPE_COLOR")){
       n.getParam("axalta/ccscore/dashboard/TAPE_COLOR",tape_color_);
     }
+
+    if(n.hasParam("Windows/USB_Check")){
+      bool check = false;
+      n.getParam("Windows/USB_Check",check);
+      camera_connection.ready = check;
+      camera_connection.running = check;
+      if(check)
+      {
+      camera_connection.fatalerr = false;
+      camera_connection.remarks = "Camera connected";
+      }
+      else
+      {
+        camera_connection.fatalerr = true;
+        camera_connection.remarks = "Camera not connected";
+      }
+      
+    }
+    msg.realsense_camera = camera_connection;
     
     msg.tape_color = tape_color_;
     msg.completion_percentage = percent;
@@ -287,11 +311,9 @@ void restartStatusCheckNode(ros::NodeHandle &n){
   mir_state = "";
   n.setParam("axalta/ccscore/dashboard/CURRENT_PROCESS","");
   n.setParam("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE",0);
+  n.setParam("axalta/ccscore/statusCheck/reset_done",true);
   
   //ros::Duration(0.5).sleep();
-  bool u = true;
-  while(u){ 
-    n.getParam("axalta/ccscore/dashboard/RESTART_CCSCORE_TRIGGER",u);
-  }
+
   ROS_WARN("restart ended");
 }

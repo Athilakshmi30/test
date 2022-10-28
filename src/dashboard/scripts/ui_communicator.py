@@ -18,11 +18,11 @@ js = ""
 def UI_send():
     print("Inside UI send")
     #pub = rospy.Publisher('UI_data', String, queue_size=10)
-    stat_pub = rospy.Publisher('core_status',Status_data,queue_size=10)
+    stat_pub = rospy.Publisher('core_status',Status_data,queue_size=1)
     joystick_pub = rospy.Publisher('joystick_command',String,queue_size=3)
     joystick_pub_act = rospy.Publisher('joystick_cmd',String,queue_size=3)
-    progress_pub = rospy.Publisher('job_progress',Jobs,queue_size=10)
-    mir_map_img_pub = rospy.Publisher('map_mir', String,queue_size=10)
+    progress_pub = rospy.Publisher('job_progress',Jobs,queue_size=1)
+    mir_map_img_pub = rospy.Publisher('map_mir', String,queue_size=1)
     rate = rospy.Rate(1) # 100hz
     global js
     while not rospy.is_shutdown():
@@ -45,6 +45,10 @@ def UI_send():
                     js = "" 
                 else:
                     js = ""
+            if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/core_main_processes") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/core_main_processes")):
+                    js = ""
+                    #status = Status_data()
+                    rospy.set_param("axalta/ccscore/dashboard/ui_communicator/reset_done",True)
         except:
             print("Inside Try Cache exception set to 10")
             #rospy.sleep(10)     

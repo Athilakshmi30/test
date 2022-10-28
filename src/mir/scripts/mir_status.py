@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import time
 import requests
 import json
 import yaml
@@ -12,13 +13,21 @@ def get_mir_state():
     url=yaml_data["host"]+"/status"
     payload={}
     headers={'Content-Type': 'application/json','Authorization': yaml_data["auth"]}
+    try:
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
+        print(response.text)
+        print(jresponse['battery_percentage'])
 
-    response = requests.request("GET", url, headers=headers, data=payload, verify=False)
-    jresponse=response.json()
-    ##print(response.text)
-    ##print(jresponse['battery_percentage'])
+        return jresponse["state_text"]
+    except:
+        time.sleep(2)
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
+        print(response.text)
+        print(jresponse['battery_percentage'])
 
-    return jresponse["state_text"]
+        return jresponse["state_text"]
     
 def get_mir_battery():
 
@@ -26,12 +35,21 @@ def get_mir_battery():
     payload={}
     headers={'Content-Type': 'application/json','Authorization': yaml_data["auth"]}
 
-    response = requests.request("GET", url, headers=headers, data=payload, verify=False)
-    jresponse=response.json()
-    ##print(response.text)
-    ##print(jresponse['battery_percentage'])
+    try:
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
+        #print(response.text)
+        #print(jresponse['battery_percentage'])
 
-    return jresponse['battery_percentage']
+        return jresponse['battery_percentage']
+    except:
+        time.sleep(2)
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
+        #print(response.text)
+        #print(jresponse['battery_percentage'])
+
+        return jresponse['battery_percentage']
 
 def get_mir_position():
     
@@ -39,12 +57,25 @@ def get_mir_position():
 
     payload={}
     headers = {'Content-Type': 'application/json','Authorization': yaml_data["auth"]}
+    try:
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
 
-    response = requests.request("GET", url, headers=headers, data=payload, verify=False)
-    jresponse=response.json()
+        #print(jresponse['position']['x'])
+        #print(jresponse['position']['y'])
+        #print(jresponse['position']['orientation'])
 
-    #print(jresponse['position']['x'])
-    #print(jresponse['position']['y'])
-    #print(jresponse['position']['orientation'])
+        return jresponse['position']['x'],jresponse['position']['y'],jresponse['position']['orientation']
+    except:
+        time.sleep(2)
+        response = requests.request("GET", url, headers=headers, data=payload, verify=False)
+        jresponse=response.json()
 
-    return jresponse['position']['x'],jresponse['position']['y'],jresponse['position']['orientation']
+        #print(jresponse['position']['x'])
+        #print(jresponse['position']['y'])
+        #print(jresponse['position']['orientation'])
+
+        return jresponse['position']['x'],jresponse['position']['y'],jresponse['position']['orientation']
+
+get_mir_position()
+get_mir_battery()

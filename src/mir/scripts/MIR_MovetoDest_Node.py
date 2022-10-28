@@ -32,7 +32,7 @@ def handle_move_to_destination(req):
         
        # status="MIR Reached "+ req.destination completed
         status="completed"
-        rospy.set_param("axalta/ccscore/dashboard/MIRTargetPositionCheck",True)
+        
         print("MIR Reached "+req.destination)
         pause_mir()
 

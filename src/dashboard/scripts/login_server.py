@@ -11,6 +11,7 @@ import base64
 import yaml
 import threading
 import os
+from std_msgs.msg import *
 #from pathlib import Path
 
 from jobdetailshandler import JobDetailsHandler
@@ -18,6 +19,13 @@ from surface_handler import SurfaceHandler
 from spraygun_handler import SpraygunHandler
 import imageprocesshandler
 from main_package.srv import MainTrigger
+from ccs_lite_communicate.srv import *
+from ccs_lite_msgs.msg import *
+
+
+mir_action = False
+
+mir_action_painting = False
 
 class Dashboard():
 
@@ -25,6 +33,7 @@ class Dashboard():
         rospy.init_node('login_server')
         self.coat = 1
         self.init_services()
+        
        #  self.init_params()
         # rospy.Subscriber('core_report',Report, self.report_callback)
         # self.report = Report()
@@ -51,6 +60,10 @@ class Dashboard():
 
         except rospy.ServiceException as e:
             print("Service call failed: %s" % e)
+
+    def function_camera_connection_check(self,name):
+        cam_conn = os.system("/home/axalta_ws/src/ai_module/sdk_launcher_camera_connection.sh")
+        print("called camera connection")
     
     def init_services(self):
         #<----------------------services for ui to core trigger----------------->
@@ -78,6 +91,8 @@ class Dashboard():
 
         s12 = rospy.Service('startPaintProcess_server',StartPainting, self.handle_start_painting)
 
+        #s17 = rospy.Service('skipPaintProcess_server',SpraygunSettingsEdit, self.handle_skip_paint_process)
+
         #<----------------------services for set and edit settings----------------->
         s13 = rospy.Service('spraygun_settings_server',SpraygunSettings, self.handle_spray_gun)
 
@@ -86,6 +101,7 @@ class Dashboard():
         #<----------------------services for exit and resetting----------------->
         s15 = rospy.Service('exitJob_server', ExitJob, self.handle_exit_job)
 
+        s16 = rospy.Service('resetFeasibilityCheck_server', ResetFeasibilityCheck, self.handle_reset_feasibility_check)
         #<---------------------unused services----------------->
 
         # s5 = rospy.Service('arm_jointaction_server',ARMJointAction, self.handle_arm_jointaction)
@@ -137,6 +153,10 @@ class Dashboard():
             req.username == dashboard_username and req.password == dashboard_password)
         print('response:', login_cred_resp)
         print('time:', time.time())
+        camera_thread = threading.Thread(target=self.function_camera_connection_check,args=(1,))
+        camera_thread.start()
+        # cam_conn = os.system("/home/axalta_ws/src/ai_module/sdk_launcher_camera_connection.sh")
+        print("called camera connection")
         return login_cred_resp
 
     def handle_job_details(self, req):
@@ -149,6 +169,8 @@ class Dashboard():
 
         if (req.position_state):
             rospy.set_param('axalta/ccscore/dashboard/MANUAL_MODE', False)
+            global mir_action
+            mir_action = True
             t2 = threading.Thread(target=self.function_current_process_start_scanning,args=(1,))
             t2.start()
         if(self.coat == 1):
@@ -216,6 +238,12 @@ class Dashboard():
 
     def handle_start_painting(self, req):
         rospy.loginfo('----------------------startPaintProcess_server-------------------------------------------------')
+        #rospy.set_param("")
+        # cmd_.lidar_door_action = True
+        # cmd_.mir_door_action = True
+        # cmd_.paint_gun_action = False
+        
+        
         surface_handle = SurfaceHandler()
         response = surface_handle.handle_surface_selected(req)
         return response
@@ -301,11 +329,61 @@ class Dashboard():
             print("Service call failed: %s" % e)
             return MIRMoveToChargingResponse(False)
 
+    def handle_reset_feasibility_check(self, req):
+        rospy.loginfo('-----------------------reset_feasibility_check_server------------------------------------------------')
+        print('request:', req)
+        rospy.set_param("axalta/ccscore/dashboard/reset_trajectory_planning",True)
+        while not rospy.get_param("axalta/ccscore/dashboard/restart_pointcloud_and_arm_completed"):
+            pass
+        rospy.set_param("axalta/ccscore/dashboard/restart_pointcloud_and_arm_completed",False)
+        return ResetFeasibilityCheckResponse(True)
+
+def painting_done_callback_login(data):
+    global mir_action_painting
+    mir_action_painting = data.data
+    #print(mir_action_painting)
+    
+
+def mir_door_action_client_call(command):
+    rospy.wait_for_service('ccs_lite_command')
+    try:
+        ccs_lite_command_service = rospy.ServiceProxy('ccs_lite_command', CcsLiteCommand)
+        resp1 = ccs_lite_command_service(command)
+        #print(resp1)
+        return True
+
+    except rospy.ServiceException as e:
+            print("Service call failed: %s" % e)
 
 if __name__ == "__main__":
+    cmd_ = CcsLiteCmd()
     Dashboard()
+
     rate = rospy.Rate(20)
+    cmd_pub = rospy.Publisher('/ccs_lite_cmd', CcsLiteCmd, queue_size=10)
+    rospy.Subscriber("painting_status", Bool, painting_done_callback_login)
     while (not rospy.is_shutdown()):
+        #print(mir_action)
+        if mir_action:
+            cmd_.lidar_door_action = False
+            cmd_.mir_door_action = True
+            cmd_.paint_gun_action = False
+            mir_action = False
+            mir_door_action_client_call(cmd_)
+
+        elif mir_action_painting:
+            cmd_.lidar_door_action = False
+            cmd_.mir_door_action = False
+            cmd_.paint_gun_action = False
+            mir_action_painting = False
+            mir_door_action_client_call(cmd_)
+
+       
+        # else:
+        #     cmd_.lidar_door_action = False
+        #     cmd_.mir_door_action = False
+        #     cmd_.paint_gun_action = False
+        # cmd_pub.publish(cmd_)
         rate.sleep()
 
     rospy.spin()

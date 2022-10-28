@@ -17,14 +17,14 @@ sensor_msgs::PointCloud2::Ptr down_sampled_data = sensor_msgs::PointCloud2::Ptr(
 sensor_msgs::PointCloud2::Ptr filtered_data = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
 sensor_msgs::PointCloud2::Ptr filtered_data_transformed = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
 
-static bool data_flag = false;
-static bool msg_count = false;
-static float min_depth_threshold = 0.6;
-static float max_depth_threshold = 1.7;
-static float voxel_leaf_size = 0.01f;
-static int statfilter_meank = 100;
-static float statfilter_stddev = 1.0;
-static bool restart_flag = false;
+bool data_flag = false;
+bool msg_count = false;
+float min_depth_threshold = 0.6;
+float max_depth_threshold = 1.7;
+float voxel_leaf_size = 0.01f;
+int statfilter_meank = 100;
+float statfilter_stddev = 1.0;
+bool restart_flag = false;
 
 void getNodeParams(ros::NodeHandle &n);
 void restartNode(ros::NodeHandle &n);
@@ -183,6 +183,7 @@ int main(int argc, char **argv)
 
 void restartNode(ros::NodeHandle &n)
 {
+  ROS_ERROR("filter restart node");
   data_flag = false;
   msg_count = false;
   filtered_data = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
@@ -191,7 +192,7 @@ void restartNode(ros::NodeHandle &n)
     n.setParam("axalta/ccscore/dashboard/restart_filternode_trigger", false);
     restart_flag = false;
     ros::Duration(0.1).sleep();
-    n.setParam("axalta/ccscore/dashboard/restart_reorient_wrong_normals_trigger", true);
+    n.setParam("axalta/ccscore/dashboard/restart_transform_cloud_node_trigger", true);
     ROS_INFO("Triggered restarting Surface Node");
   }
   getNodeParams(n);

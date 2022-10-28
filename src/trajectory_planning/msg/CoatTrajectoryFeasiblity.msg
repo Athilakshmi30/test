@@ -3,4 +3,10 @@ bool base1_coat_feasiblity
 bool base2_coat_feasiblity
 bool clear1_coat_feasiblity
 bool clear2_coat_feasiblity
+string sealer_coat_ik_percentage
+string base1_coat_ik_percentage
+string base2_coat_ik_percentage
+string clear1_coat_ik_percentage
+string clear2_coat_ik_percentage
+
 

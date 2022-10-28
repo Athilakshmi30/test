@@ -83,7 +83,7 @@ pcl::PointNormal computeCentroid(pcl::PointCloud<PointTypeFull>::Ptr cloud_with_
   }
   centroid.get(searchPoint);
 
-  std::cout << "searchPoint : " << searchPoint << std::endl;
+  //std::cout << "searchPoint : " << searchPoint << std::endl;
   return searchPoint;
 }
 
@@ -114,10 +114,10 @@ bool enforceNormalSimilarity(const PointTypeFull &point_a, const PointTypeFull &
 
   if (point_a_normal.dot(point_b_normal) > std::cos(95.0f / 180.0f * static_cast<float>(M_PI)))
   {
-    std::cout << point_a_normal.dot(point_b_normal) << "return true" << std::endl;
+    //std::cout << point_a_normal.dot(point_b_normal) << "return true" << std::endl;
     return (true);
   }
-  std::cout << "return false" << std::endl;
+  //std::cout << "return false" << std::endl;
   return (false);
 }
 
@@ -411,7 +411,11 @@ void getNodeParams(ros::NodeHandle &n)
 
 void restartNode(ros::NodeHandle &n)
 {
-
+  ROS_ERROR("filter reorient wrong normals node");
+  dataFlag = false;
+  normal_corrected_cloud_data = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
+  not_in_plane_data = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
+  flipped_data = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);  
   if (n.hasParam("axalta/ccscore/dashboard/restart_reorient_wrong_normals_trigger"))
   {
     n.setParam("axalta/ccscore/dashboard/restart_reorient_wrong_normals_trigger", false);
@@ -419,9 +423,10 @@ void restartNode(ros::NodeHandle &n)
     ros::Duration(0.1).sleep();
     n.setParam("axalta/ccscore/dashboard/restart_horizontal_plane_segmentation_node_trigger", true);
     n.setParam("axalta/ccscore/dashboard/restart_transform_cloud_points_along_normals_node_trigger", true);
+    
   }
   getNodeParams(n);
-  dataFlag = false;
+  
 }
 
 int main(int argc, char **argv)
@@ -430,9 +435,9 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Publisher normal_corrected_cloud_pub = n.advertise<sensor_msgs::PointCloud2>("normal_corrected_cloud", 10);
-  ros::Publisher input_pub = n.advertise<sensor_msgs::PointCloud2>("input", 10);
-  ros::Publisher flipped_pub = n.advertise<sensor_msgs::PointCloud2>("flipped_points", 10);
+  ros::Publisher normal_corrected_cloud_pub = n.advertise<sensor_msgs::PointCloud2>("normal_corrected_cloud", 1);
+  ros::Publisher input_pub = n.advertise<sensor_msgs::PointCloud2>("input", 1);
+  ros::Publisher flipped_pub = n.advertise<sensor_msgs::PointCloud2>("flipped_points", 1);
 
   ros::Subscriber realsense_sub = n.subscribe("/filtered_and_transformed", 10, filteredCallback);
 
@@ -447,7 +452,7 @@ int main(int argc, char **argv)
     {
       if (restart_flag)
       {
-        ROS_INFO("Received restart request. Restarting reorient wrong normals Node...");
+        ROS_ERROR("Received restart request. Restarting reorient wrong normals Node...");
         restartNode(n);
       }
     }

@@ -35,14 +35,14 @@ sensor_msgs::PointCloud2::Ptr base_and_normals = sensor_msgs::PointCloud2::Ptr(n
 
 bool dataFlag = false;
 
-static float painting_dist_sealer_coat = 0.1524;    // 6 inches
-static float painting_dist_base_one_coat = 0.1524;  // 6 inches
-static float painting_dist_base_two_coat = 0.254;   // 10 inches
-static float painting_dist_clear_one_coat = 0.1524; // 6 inches
-static float painting_dist_clear_two_coat = 0.2032; // 8 inches
+float painting_dist_sealer_coat = 0.1524;    // 6 inches
+float painting_dist_base_one_coat = 0.1524;  // 6 inches
+float painting_dist_base_two_coat = 0.2286;   // 10 inches
+float painting_dist_clear_one_coat = 0.1524; // 6 inches
+float painting_dist_clear_two_coat = 0.2032; // 8 inches
 
-static float coat_sealercoat_clearance = 0, coat_basecoat1_clearance = 0, coat_basecoat2_clearance = 0, coat_clearcoat1_clearance = 0, coat_clearcoat2_clearance = 0; // comes from UI settings
-static bool restart_flag = false;
+float coat_sealercoat_clearance = 0, coat_basecoat1_clearance = 0, coat_basecoat2_clearance = 0, coat_clearcoat1_clearance = 0, coat_clearcoat2_clearance = 0; // comes from UI settings
+bool restart_flag = false;
 
 void getNodeParams(ros::NodeHandle &n);
 void restartNode(ros::NodeHandle &n);
@@ -304,12 +304,13 @@ int main(int argc, char **argv)
     {
       if (restart_flag)
       {
+        std::cout<<"restart flag : "<<restart_flag<<std::endl;
         ROS_INFO("Received restart request. Restarting Surface generation Node...");
         restartNode(n);
       }
     }
 
-    if (dataFlag)
+    if (dataFlag && (!restart_flag))
     {
 
       transformed_point_sealercoat_pub.publish(*transformed_cloud_sealer_coat);
@@ -370,7 +371,7 @@ void getNodeParams(ros::NodeHandle &n)
       if (n.getParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_sealercoat", coat_sealercoat_clearance))
       {
         ROS_INFO("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_sealercoat = %f", coat_sealercoat_clearance);
-        painting_dist_sealer_coat = coat_sealercoat_clearance / 39.37;
+        painting_dist_sealer_coat = coat_sealercoat_clearance * 0.0254;
       } // Else taking the globally initiated value as 0.1524m or 6 inches
     }
     if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat1"))
@@ -379,7 +380,7 @@ void getNodeParams(ros::NodeHandle &n)
       if (n.getParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat1", coat_basecoat1_clearance))
       {
         ROS_INFO("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat1 = %f", coat_basecoat1_clearance);
-        painting_dist_base_one_coat = coat_basecoat1_clearance / 39.37;
+        painting_dist_base_one_coat = coat_basecoat1_clearance * 0.0254;
       } // Else taking the globally initiated value as 0.254m or 10 inches
     }
     if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat2"))
@@ -387,7 +388,7 @@ void getNodeParams(ros::NodeHandle &n)
       if (n.getParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat2", coat_basecoat2_clearance))
       {
         ROS_INFO("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat2 = %f", coat_basecoat2_clearance);
-        painting_dist_base_two_coat = coat_basecoat2_clearance / 39.37;
+        painting_dist_base_two_coat = coat_basecoat2_clearance * 0.0254;
       } // Else taking the globally initiated value as 0.254m or 10 inches
     }
     if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat1"))
@@ -395,7 +396,7 @@ void getNodeParams(ros::NodeHandle &n)
       if (n.getParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat1", coat_clearcoat1_clearance))
       {
         ROS_INFO("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat1 = %d", coat_clearcoat1_clearance);
-        painting_dist_clear_one_coat = coat_clearcoat1_clearance / 39.37;
+        painting_dist_clear_one_coat = coat_clearcoat1_clearance * 0.0254;
       } // Else taking the globally initiated value as 0.2032m or 8 inches
     }
     if (n.hasParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat2"))
@@ -403,7 +404,7 @@ void getNodeParams(ros::NodeHandle &n)
       if (n.getParam("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat2", coat_clearcoat2_clearance))
       {
         ROS_INFO("axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat2 = %d", coat_clearcoat2_clearance);
-        painting_dist_clear_two_coat = coat_clearcoat2_clearance / 39.37;
+        painting_dist_clear_two_coat = coat_clearcoat2_clearance * 0.0254;
       } // Else taking the globally initiated value as 0.2032m or 8 inches
     }
   }
@@ -419,7 +420,8 @@ void getNodeParams(ros::NodeHandle &n)
 
 void restartNode(ros::NodeHandle &n)
 {
-
+  ROS_ERROR("filter transform cloud points node");
+  dataFlag = false;
   transformed_cloud_sealer_coat = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
   transformed_cloud_base_coat1 = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
   transformed_cloud_base_coat2 = sensor_msgs::PointCloud2::Ptr(new sensor_msgs::PointCloud2);
@@ -440,5 +442,5 @@ void restartNode(ros::NodeHandle &n)
     n.setParam("axalta/ccscore/dashboard/restart_path_planning_node_trigger", true);
   }
   getNodeParams(n);
-  dataFlag = false;
+  
 }

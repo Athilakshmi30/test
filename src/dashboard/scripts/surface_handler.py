@@ -10,9 +10,11 @@ import base64
 #from jobdetailshandler import JobDetailsHandler
 #from main_package.main_call import call_modules
 from main_package.srv import MainTrigger
+from ccs_lite_communicate.srv import *
+from ccs_lite_msgs.msg import *
 
 painting_done = False
-
+cmd_ = CcsLiteCmd()
 
 class SurfaceHandler():
     def __init__(self):
@@ -85,6 +87,8 @@ class SurfaceHandler():
 
         rospy.set_param('axalta/ccscore/dashboard/EXIT_JOB_DONE', True)
         rospy.set_param('axalta/ccscore/dashboard/EXIT_JOB_TRIGGER', True)
+        rospy.set_param('axalta/ccscore/dashboard/RESET_JOB_TRIGGER', True)
+
         #rospy.set_param("axalta/ccscore/dashboard/LIDARSTART", True)
 
     def initiate_painting(self, paint_proc, coat_num):

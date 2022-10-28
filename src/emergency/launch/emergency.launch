@@ -1,7 +1,7 @@
 <launch>
 
 
-  <node pkg="emergency" type="emergency_handle.py" name="emergency_handle" output="log"></node>
+  <node pkg="emergency" type="emergency_handle.py" name="emergency_handle" output="screen"></node>
   
   
   

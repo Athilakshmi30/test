@@ -13,7 +13,6 @@ from ccs_lite_communicate.srv import *
 from ccs_lite_msgs.msg import CcsLiteCmd,EnclosureStatus,Door
 import time
 
-rospy.set_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency_reset",False)
 class Emergency():
     
     def __init__(self):
@@ -55,11 +54,12 @@ class Emergency():
             
     def node_start_function(self):
         rate = rospy.Rate(10)
-        #rospy.set_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET",False)
-        #rospy.set_param("axalta/ccscore/ccs_lite_communicate_EMERGENCY",False)
+        # rospy.set_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET",False)
+        # rospy.set_param("axalta/ccscore/ccs_lite_communicate_EMERGENCY",False)
         
         while not rospy.is_shutdown():
             cmdd = CcsLiteCmd()
+
            # rospy.sleep(1)
             """if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET")):
                 cmdd.lidar_door_action = True
@@ -70,21 +70,19 @@ class Emergency():
                 self.move_to_destination_recovery("home") 
                 rospy.set_param("axalta/ccscore/ccs_lite_communicate/EMERGENCY_RESET",False)""" 
             try:
-                # if(rospy.has_param("axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP") and rospy.has_param("axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY")):
-                if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency_reset") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency_reset")):
-                #     print("Inside Has Emergency Params")
-                #     a_b = rospy.get_param('axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP')
-                #     c_d  = rospy.get_param('axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY')
-                #     if( a_b or c_d):
-                        cmdd.lidar_door_action = False
-                        cmdd.mir_door_action = False
-                        cmdd.paint_gun_action = False
-                        rospy.set_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency_reset",False)
-                        self.ccs_lite_command_client_service(cmdd)
+                #if(rospy.has_param("axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP") and rospy.has_param("axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY")):
+                if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/mir_door_action_emergency")):
+                    # print("Inside Has Emergency Params")
+                    # a_b = rospy.get_param('axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP')
+                    # c_d  = rospy.get_param('axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY')
+                    # if( a_b or c_d):
+                    cmdd.lidar_door_action = True
+                    cmdd.mir_door_action = True
+                    cmdd.paint_gun_action = False
             except:
                 print("Inside Emergency Handler Exception set ti 10 Sec")
                # rospy.sleep(10)
-            # self.ccs_lite_command_client_service(cmdd)
+            self.ccs_lite_command_client_service(cmdd)
             rate.sleep()                   
 
 if __name__ == "__main__":

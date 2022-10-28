@@ -8,7 +8,7 @@
   
     <node pkg="arm_tf_publisher" type="add_frame.py" name="add_frame" clear_params="true" output="log"></node>
   
-    <node pkg="open3d_ros_pointcloud_conversion" type="lib_cloud_conversion_between_Open3D_and_ROS.py" name="lib_cloud_conversion_between_Open3D_and_ROS" clear_params="true" output="log"></node>
+    <node pkg="open3d_ros_pointcloud_conversion" type="lib_cloud_conversion_between_Open3D_and_ROS.py" name="lib_cloud_conversion_between_Open3D_and_ROS" clear_params="true" output="screen"></node>
 
     <node pkg="arm_tf_publisher" type="transform_cloud.py" name="transform_cloud" clear_params="true" output="log"></node>
 

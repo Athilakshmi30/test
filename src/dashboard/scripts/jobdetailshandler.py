@@ -77,8 +77,8 @@ class JobDetailsHandler():
         rospy.set_param(
             'axalta/ccscore/dashboard/JOBID', self.jobID)
         # rospy.set_param("axalta/ccscore/dashboard/NEWJOB", True)
-        rospy.set_param(
-            "axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
+        # rospy.set_param(
+            # "axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
         self.jobID = str(int(self.jobID) + 1)
         rospy.set_param(
             'axalta/ccscore/dashboard/PAINTING_DONE', False)
@@ -92,11 +92,11 @@ class JobDetailsHandler():
             mir_resp = self.move_to_target(destination)
             #mir_resp = True  
             if(mir_resp):
-                rospy.set_param("axalta/ccscore/dashboard/MIRTargetPositionCheck",True)
+               # rospy.set_param("axalta/ccscore/dashboard/MIRTargetPositionCheck",True)
                 # safety delay until vibrations die out to enable LIDAR take better pointclouds
-                time.sleep(2)
+                #time.sleep(2)
                 # initializing parameters for painting process
-                self.init_paint_process_params(destination)
+                #self.init_paint_process_params(destination)
                 print('response:', True)
                 return True
             else:
@@ -124,8 +124,10 @@ class JobDetailsHandler():
             if(retry_count >= 3):
                 return False
             else:
+                rospy.set_param("axalta/ccscore/dashboard/MIRTargetPositionCheck",True)
                 rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Robot has reached destination")
                 rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE",100)
+                
                 return True
             # return True
         except rospy.ServiceException as e:

@@ -15,6 +15,7 @@ import moveit_commander
 from std_msgs.msg import String, Int32MultiArray, MultiArrayLayout
 from arm_ctrl_navigate.msg import Plannedpath, PathStamped, Path, ListEachPoint, EachPoint
 from rtde_python.srv import ReceiveDataUR, ReceiveDataURResponse
+from status_check.msg import stats
 #from tf import transformations as tft
 from geometry_msgs.msg import Pose, PoseArray
 import numpy as np
@@ -32,7 +33,7 @@ trigger_points_ = []
 point_flag_list_all_ = ListEachPoint()
 start_validate = False
 connect_rtde_recv = False
-
+first_try = False
 
 rospy.set_param("validating_coat", "None")
 
@@ -49,6 +50,24 @@ def trigger_off(rtde_IO):
     rtde_IO.setStandardDigitalOut(0, False)
     rtde_IO.setStandardDigitalOut(1, False)
     return 1
+
+def restartNode():
+
+    print("------------------------------------restarting final rece data ur node-------------------------------------")
+    global list_result, trigger_points_, point_flag_list_all_, start_validate, connect_rtde_recv
+    rospy.set_param("Execute_coat", "None")
+    rospy.set_param("Z_Level","None")
+    #rospy.set_param("robot_state","power_off")
+    rospy.set_param("isEmergencyStopped","not_pressed")
+    list_result = []
+    trigger_points_ = []
+    point_flag_list_all_ = ListEachPoint()
+    start_validate = False
+    connect_rtde_recv = False
+    if(rospy.has_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger")):
+        rospy.set_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger",False)
+        time.sleep(1)
+        rospy.set_param("axalta/ccscore/dashboard/restart_final_sendData_ur_node_trigger",True)
 
 
 def compare(moveit_ik_path, trajectory_path, updated_trajectory_path):
@@ -129,135 +148,186 @@ def compare(moveit_ik_path, trajectory_path, updated_trajectory_path):
 def rece_process():
 
     rospy.init_node('final_receData_ur', anonymous=True)
-
+    rospy.set_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger",False)
     s = rospy.Service('receive_data_ur_server', ReceiveDataUR,
                       handle_receive_data_ur_server)
-
+    robot_st = rospy.Publisher(
+            "/arm_status", stats, queue_size=1)
     rate = rospy.Rate(10)
 
     rospy.loginfo("final_receData_ur node up and running... ")
     while not rospy.is_shutdown():
-        global start_validate,connect_rtde_recv
-        check_robot_on = False
-        if rospy.get_param("robot_state")=='power_on':
-            rtde_IO = rtde_io.RTDEIOInterface("192.168.12.30")  
-            print("Robot rtde_IO conntected")
-            rospy.set_param("robot_state","checked")          
-        trigger_status = False
+        if(rospy.has_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger") and rospy.get_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger")):  
+            restartNode()
+        else:    
+            global start_validate,connect_rtde_recv,first_try
+            check_robot_on = False
+            if rospy.get_param("robot_state")=='power_on' and not first_try:
+                rtde_IO = rtde_io.RTDEIOInterface("192.168.12.30")  
+                print("Robot rtde_IO conntected")
+                #rospy.loginfo("First try done ")
+                rospy.set_param("robot_state","checked")
+                first_try = True          
+            trigger_status = False
+            
+            validate_pos_offset = 0.01
+    
+            count = 0
+            trig_count = -1
+            trig_flag = False
+            extra_point_skip_flag = False
+            forced_trigger_off = False
+            forced_trigger_off_timer_flag = False
+    
+            skip_point =0
+            emergency_stopped = False
+            robot_stats=stats()
+            robot_stats.ready = False
+            robot_stats.running = False
+            robot_stats.fatalerr = False
+            robot_stats.remarks = "Robotic arm not started"
+            #robot_st.publish(robot_stats)
+            if not connect_rtde_recv:
+                rtde_r = rtde_receive.RTDEReceiveInterface("192.168.12.30")
+                print("Robot rtde_receive conntected")
+                connect_rtde_recv = True  
+            if connect_rtde_recv:
+                # print("inside connect_rtde_recv")
+                # print("rtde_r.getRobotStatus()",rtde_r.getRobotStatus()) 
+                robot__status = rtde_r.getRobotStatus()
+                if robot__status==1:
+                    robot_stats.ready = True
+                    robot_stats.running = True
+                    robot_stats.remarks = "Robotic arm started"
+               # robot_st.publish(robot_stats)           
+            if start_validate:
+                rtde_IO.setSpeedSlider(1.0)
+                prev_pose = rtde_r.getActualTCPPose()
+                for trigger_point in trigger_points_:
         
-        validate_pos_offset = 0.01
-
-        count = 0
-        trig_count = -1
-        trig_flag = False
-        extra_point_skip_flag = False
-        forced_trigger_off = False
-        forced_trigger_off_timer_flag = False
-
-        skip_point =0
-        emergency_stopped = False
-        if not connect_rtde_recv:
-            rtde_r = rtde_receive.RTDEReceiveInterface("192.168.12.30")
-            print("Robot rtde_receive conntected")
-            connect_rtde_recv = True            
-        if start_validate:
-            rtde_IO.setSpeedSlider(1.0)
-            prev_pose = rtde_r.getActualTCPPose()
-            for trigger_point in trigger_points_:
-    
-                while True:
-                    emergency_stopped = rtde_r.isEmergencyStopped()
-                    # Check for EmergencyStopped
-                    if emergency_stopped:
-                        rospy.set_param("isEmergencyStopped","pressed")
-                        trigger_off(rtde_IO)
-                        break
-                    
-                    #current_seconds = rospy.get_time()    
-                    robot_pose = rtde_r.getActualTCPPose()
-                    # Skipping the second and third trigger point from trigger on
-                    if extra_point_skip_flag:
-                        print("inside extra skip point")
-                        count+=1
-                        forced_trigger_off_timer_flag = True
-                        skip_point+=1
-                        if skip_point>1:
-                            extra_point_skip_flag = False                    
-                            skip_point = 0
-                        break
-
-
-                    elif((abs(robot_pose[0]+trigger_points_[-1][0]) < validate_pos_offset) and (abs(robot_pose[1]+trigger_points_[-1][1]) < validate_pos_offset) and (abs(robot_pose[2]-trigger_points_[-1][2]) < validate_pos_offset) and forced_trigger_off_timer_flag):
-                        print("Forced Trigger Off")
-                        forced_trigger_off = True
-                        trigger_off(rtde_IO)
-                        break
-                    elif (abs(robot_pose[0]+trigger_point[0]) < validate_pos_offset) and (abs(robot_pose[1]+trigger_point[1]) < validate_pos_offset) and (abs(robot_pose[2]-(trigger_point[2])) < validate_pos_offset):
-                        print("inside the loop")
-                        count += 1
-    
-                        if count == 1:
-                            start_seconds = rospy.get_time()
-                            trigger_on(rtde_IO)
-                            #print("start_seconds",start_seconds)
-                            extra_point_skip_flag = True
-    
-                            trig_count = 4
-                        elif trig_count == count and not trig_flag:
-                            print("Normal Trigger Off")    
+                    while True and not  rospy.get_param("axalta/ccscore/dashboard/restart_final_receData_ur_node_trigger"):
+                        # robot_stats=stats()
+                        # robot_stats.ready = False
+                        # robot_stats.running = False
+                        # robot_stats.fatalerr = False
+                        # robot_stats.remarks = "arm not started"
+                        emergency_stopped = rtde_r.isEmergencyStopped()
+                        #print("inside while")
+                        robot__status = rtde_r.getRobotStatus()
+                        if robot__status==1:
+                            robot_stats.ready = True
+                            robot_stats.running = True
+                            robot_stats.remarks = "Robotic arm started"
+                        robot_st.publish(robot_stats)
+                        # Check for EmergencyStopped
+                        if emergency_stopped:
+                            rospy.set_param("isEmergencyStopped","pressed")
                             trigger_off(rtde_IO)
-                            forced_trigger_off_timer_flag = False
-                            trig_count = trig_count + 1
-                            trig_flag = True
-                        elif trig_count == count and trig_flag:
-    
-                            trigger_on(rtde_IO)
-                            start_seconds = rospy.get_time()    
-                            #print("start_seconds",start_seconds)
-                            trig_count = trig_count + 3
-                            trig_flag = False
-                            extra_point_skip_flag = True
-    
-                        #print("Recevied point : ", trigger_point)
-                        print("len trigger_points", len(trigger_points_))
-                        print("count-1", count-1)
-    
-                        break
-                    prev_pose = robot_pose
-                if forced_trigger_off:
-                    break
-
-                if emergency_stopped:
-                    print("e Stop")
-                    #print("rtde_r.isEmergencyStopped()",rtde_r.isEmergencyStopped())
-                    #print("rtde_r.getRobotMode()",rtde_r.getRobotMode())
-
-                    while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
-                        print("Waiting for Emergency to release")
+                            break
                         
-                    rospy.set_param("isEmergencyStopped","released")                    
-                    break    
-                
-            start_validate = False
-            new_robot_pose = rtde_r.getActualTCPPose() 
-            print("Z_Level",new_robot_pose[2])
-            #time.sleep(5)
-            rospy.set_param("Z_Level",new_robot_pose[2])    
-            print("Loop is completed")
-            rtde_IO.setSpeedSlider(0.67) 
-            #rtde_IO.disconnect()
-            rtde_r.disconnect()
-            connect_rtde_recv = False
-        elif rtde_r.isEmergencyStopped():
-            rospy.set_param("isEmergencyStopped","pressed")
-            while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
-                print("Waiting for Emergency to release")     
-            rospy.set_param("isEmergencyStopped","released")  
-            rtde_r.disconnect()
-            connect_rtde_recv = False
-                              
-
-        rate.sleep()
+                        #current_seconds = rospy.get_time()    
+                        robot_pose = rtde_r.getActualTCPPose()
+                        # Skipping the second and third trigger point from trigger on
+                        if extra_point_skip_flag:
+                            print("inside extra skip point")
+                            count+=1
+                            forced_trigger_off_timer_flag = True
+                            skip_point+=1
+                            if skip_point>1:
+                                extra_point_skip_flag = False                    
+                                skip_point = 0
+                            break
+    
+    
+                        elif((abs(robot_pose[0]+trigger_points_[-1][0]) < validate_pos_offset) and (abs(robot_pose[1]+trigger_points_[-1][1]) < validate_pos_offset) and (abs(robot_pose[2]-trigger_points_[-1][2]) < validate_pos_offset) and forced_trigger_off_timer_flag):
+                            print("Forced Trigger Off")
+                            forced_trigger_off = True
+                            trigger_off(rtde_IO)
+                            break
+                        elif (abs(robot_pose[0]+trigger_point[0]) < validate_pos_offset) and (abs(robot_pose[1]+trigger_point[1]) < validate_pos_offset) and (abs(robot_pose[2]-(trigger_point[2])) < validate_pos_offset):
+                            print("inside the loop")
+                            count += 1
+        
+                            if count == 1:
+                                start_seconds = rospy.get_time()
+                                trigger_on(rtde_IO)
+                                #print("start_seconds",start_seconds)
+                                extra_point_skip_flag = True
+        
+                                trig_count = 4
+                            elif trig_count == count and not trig_flag:
+                                print("Normal Trigger Off")    
+                                trigger_off(rtde_IO)
+                                forced_trigger_off_timer_flag = False
+                                trig_count = trig_count + 1
+                                trig_flag = True
+                            elif trig_count == count and trig_flag:
+        
+                                trigger_on(rtde_IO)
+                                start_seconds = rospy.get_time()    
+                                #print("start_seconds",start_seconds)
+                                trig_count = trig_count + 3
+                                trig_flag = False
+                                extra_point_skip_flag = True
+        
+                            #print("Recevied point : ", trigger_point)
+                            print("len trigger_points", len(trigger_points_))
+                            print("count-1", count-1)
+        
+                            break
+                        prev_pose = robot_pose
+                    if forced_trigger_off:
+                        break
+    
+                    if emergency_stopped:
+                        print("e Stop")
+                        #print("rtde_r.isEmergencyStopped()",rtde_r.isEmergencyStopped())
+                        #print("rtde_r.getRobotMode()",rtde_r.getRobotMode())
+    
+                        while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
+                            print("Waiting for Emergency to release")
+                            robot__status = rtde_r.getRobotStatus()
+                            robot_stats=stats()
+                            robot_stats.ready = False
+                            robot_stats.running = False
+                            robot_stats.fatalerr = False
+                            robot_stats.remarks = ""
+    
+                            if robot__status==1:
+                                robot_stats.ready = True
+                                robot_stats.running = True
+                                robot_stats.remarks = "Robotic arm started"
+                            robot_st.publish(robot_stats) 
+                        rospy.set_param("isEmergencyStopped","released")                    
+                        break    
+                    
+                start_validate = False
+                new_robot_pose = rtde_r.getActualTCPPose() 
+                print("Z_Level",new_robot_pose[2])
+                #time.sleep(5)
+                rospy.set_param("Z_Level",new_robot_pose[2])    
+                print("Loop is completed")
+                rtde_IO.setSpeedSlider(0.67) 
+                #rtde_IO.disconnect()
+                rtde_r.disconnect()
+                connect_rtde_recv = False
+            elif rtde_r.isEmergencyStopped():
+                rospy.set_param("isEmergencyStopped","pressed")
+                while rtde_r.isEmergencyStopped(): #or rtde_r.getRobotMode()==5: # rtde_r.getRobotMode()==5 for ideal state 
+                    print("Waiting for Emergency to release")     
+                    robot__status = rtde_r.getRobotStatus()
+                    robot_stats=stats()
+                    robot_stats.ready = False
+                    robot_stats.running = False
+                    robot_stats.fatalerr = True
+                    robot_stats.remarks = "Emergency pressed"
+                    robot_st.publish(robot_stats)  
+                rospy.set_param("isEmergencyStopped","released")  
+                rtde_r.disconnect()
+                connect_rtde_recv = False
+                                  
+            robot_st.publish(robot_stats)
+            rate.sleep()
     rospy.spin()
 
 

@@ -3,6 +3,7 @@
         "ostream": "cpp",
         "cmath": "cpp",
         "cstdlib": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "iostream": "cpp"
     }
 }

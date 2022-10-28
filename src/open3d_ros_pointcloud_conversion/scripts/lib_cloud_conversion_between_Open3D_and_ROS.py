@@ -18,7 +18,9 @@ from std_msgs.msg import Header
 from sensor_msgs.msg import PointCloud2, PointField
 import sensor_msgs.point_cloud2 as pc2
 
- 
+got_file = False 
+#in_cloud = o3d.geometry.PointCloud()
+#ros_cloud = PointCloud2()
 # The data structure of each point in ros PointCloud2: 16 bits = x + y + z + rgb
 FIELDS_XYZ = [
     PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
@@ -99,17 +101,22 @@ def convertCloudFromRosToOpen3d(ros_cloud):
     # return
     return open3d_cloud
 
-
+def restartNode():
+    global got_file
+    rospy.set_param("axalta/ccscore/ccs_lite_communicate/pointcloud_and_arm_reset",False)
+    print("-------------------------------reset set to False------------------------")
+    rospy.set_param("axalta/ccscore/dashboard/restart_filternode_trigger",True)
+    got_file = False
+    #rospy.set_param("axalta/ccscore/ccs_lite_communicate/pointcloud_and_arm_reset",False)
 
 # -- Example of usage
 if __name__ == "__main__":
-
+    
     rospy.init_node('lib_cloud_conversion_between_Open3D_and_ROS', anonymous=True)
     rate = rospy.Rate(2)
     
     #filename = "/home/salai/Downloads/cropped_1.ply"
     
-   
     print("Define parameters used for hidden_point_removal")
 
 
@@ -123,19 +130,25 @@ if __name__ == "__main__":
     
     # -- Convert open3d_cloud to ros_cloud, and publish. Until the subscribe receives it.
     while not rospy.is_shutdown():
-         
+        global got_file#, in_cloud, ros_cloud
+        if(rospy.has_param("axalta/ccscore/ccs_lite_communicate/pointcloud_and_arm_reset") and rospy.get_param("axalta/ccscore/ccs_lite_communicate/pointcloud_and_arm_reset")):
+            restartNode()
         if(rospy.has_param("start_trajectory_calculation") and rospy.get_param("start_trajectory_calculation")):
-        # Use the cloud from file
+             
+             # Use the cloud from file
              rospy.loginfo("Converting cloud from Open3d to ROS PointCloud2 ...")
              filename = "/home/axalta_ws/pointcloud/crop_paint_output.ply"#"/home/axalta/axalta_ws/curve1.ply" #/home/axalta/axalta_ws/test_cur.ply#/home/axalta/axalta_ws/cropped_1_Red_Door.ply
              #filename1 = "/home/salai/Downloads/table_scene_mug_stereo_textured.pcd"
              in_cloud = o3d.io.read_point_cloud(filename)
              ros_cloud = convertCloudFromOpen3dToRos(in_cloud,frame_id="camera_aligned_depth_to_color_frame_rec")
-        
-     
-
+             rospy.set_param("start_trajectory_calculation",False)
+             got_file = True
              # publish cloud
-             pub.publish(ros_cloud)
+        if(got_file):
+
+            #print("-------------------GOT PLY ---------------------")
+            #print("ros_cloud : ",ros_cloud)
+            pub.publish(ros_cloud)
       
         rate.sleep()
     rospy.spin()    

@@ -99,6 +99,7 @@ def function_current_process_start_Segmentation(lab_value_string):
 
     cmd_image_seg = os.system("/home/axalta_ws/src/ai_module/sdk_launcher_segmentation.sh")   
     
+
     if(rospy.get_param("Windows/Segmentation_check")):
         
         if os.path.isfile("/home/axalta_ws/img/Segment_internal.png"):
@@ -156,6 +157,7 @@ def handle_segmented_image_img(req):
             else:
                 
                     rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Updating changes..")
+                    rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
                     rospy.set_param("axalta/ccscore/dashboard/IsManuallyCropped",True)
                     
                     if os.path.isfile("/home/axalta_ws/pointcloud/pointcloud_manualsegmented.ply"):
@@ -177,7 +179,8 @@ def handle_segmented_image_img(req):
                     with open(path_cropped_image_path, "rb") as img_file:
                             objarea_string = base64.b64encode(img_file.read())
                     objectArea1.ImageData = str(objarea_string)
-            
+            rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Updated changes")
+            rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 100)
             return objectArea1          
         except Exception as e:
             print(e, "has occurred")
@@ -244,9 +247,11 @@ def handle_start_Segmentation(req):
     try:
         rospy.loginfo('-----------------------start_Segmentation_server------------------------------------------------')
         print('time:', time.time())
+        rospy.set_param("axalta/ccscore/dashboard/startSegmentationservercalled",True)
+        lab_value_str = rospy.get_param("axalta/ccscore/dashboard/LAB_VALUE")
         rospy.set_param("axalta/ccscore/dashboard/CURRENT_PROCESS","Area identification is in progress..")
         rospy.set_param("axalta/ccscore/dashboard/COMPLETION_PERCENTAGE", 50)
-        lab_value_str = rospy.get_param("axalta/ccscore/dashboard/LAB_VALUE")
+        
 
         t2 = threading.Thread(target=function_current_process_start_Segmentation,args=(lab_value_str,))
         t2.start()

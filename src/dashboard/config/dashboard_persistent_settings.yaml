@@ -1,9 +1,17 @@
-WSL/Windows/LAB: [1111]
+Execute_coat: None
+WSL/Windows/LAB:
+- 1111
 WSL/Windows/LAB_SET: false
 Windows/Reconstruction_check: false
 Windows/Segmentation_check: false
+Windows/USB_Check: false
+Z_Level: None
+axalta/ccscore/ccs_lite_communicate_EMERGENCY: false
+axalta/ccscore/dashboard/ARMPaintingPositionReached: false
+axalta/ccscore/dashboard/ARMScanningPositionReached: false
 axalta/ccscore/dashboard/AUTONOMOUS_MODE: false
 axalta/ccscore/dashboard/COMPLETION_PERCENTAGE: 0
+axalta/ccscore/dashboard/CURRENT_PROCESS: ''
 axalta/ccscore/dashboard/ChargingStation: home
 axalta/ccscore/dashboard/EXIT_JOB_DONE: false
 axalta/ccscore/dashboard/EXIT_JOB_TRIGGER: false
@@ -25,6 +33,7 @@ axalta/ccscore/dashboard/PAINTING_DONE: false
 axalta/ccscore/dashboard/PAINTJOBPROCESS: false
 axalta/ccscore/dashboard/PointCloudGenerated: false
 axalta/ccscore/dashboard/REQUIRED_PAINT_PROCESS: exit
+axalta/ccscore/dashboard/RESET_JOB_DONE: false
 axalta/ccscore/dashboard/RESTART_JOB_DONE: false
 axalta/ccscore/dashboard/ReconstructionDoneCheck: false
 axalta/ccscore/dashboard/RightBack: target
@@ -32,108 +41,77 @@ axalta/ccscore/dashboard/RightFront: target
 axalta/ccscore/dashboard/SCANNINGDONECHECK: false
 axalta/ccscore/dashboard/SETTINGS_APPLIED: false
 axalta/ccscore/dashboard/SOFTWARE_EMERGENCY_STOP: false
-axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_base coat 1: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_base coat 2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_basecoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_basecoat2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_clearcoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_clearcoat2: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_sealer coat: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_AIR_PRESSURE_sealercoat: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_base coat 1: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_base coat 2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_basecoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_basecoat2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_clearcoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_clearcoat2: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_sealer coat: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_BOTTOM_OFFSET_sealercoat: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_base coat 1: 0
-axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_base coat 2: 0
 axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_basecoat1: 0
 axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_basecoat2: 0
 axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_clearcoat1: 1
 axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_clearcoat2: 0
-axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_sealer coat: 0
 axalta/ccscore/dashboard/SPRAYGUN_COAT_NUMBER_sealercoat: 0
-axalta/ccscore/dashboard/SPRAYGUN_DELAY_base coat 1: 0.0
-axalta/ccscore/dashboard/SPRAYGUN_DELAY_base coat 2: 0.0
 axalta/ccscore/dashboard/SPRAYGUN_DELAY_basecoat1: 1.0
 axalta/ccscore/dashboard/SPRAYGUN_DELAY_basecoat2: 1.0
 axalta/ccscore/dashboard/SPRAYGUN_DELAY_clearcoat1: 1.0
 axalta/ccscore/dashboard/SPRAYGUN_DELAY_clearcoat2: 0.0
-axalta/ccscore/dashboard/SPRAYGUN_DELAY_sealer coat: 0.0
 axalta/ccscore/dashboard/SPRAYGUN_DELAY_sealercoat: 1.0
-axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_base coat 1: 6.0
-axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_base coat 2: 10.0
 axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat1: 6.0
 axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_basecoat2: 10.0
 axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat1: 6.0
-axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat2: 5.0
-axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_sealer coat: 6.0
+axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_clearcoat2: 8.0
 axalta/ccscore/dashboard/SPRAYGUN_DISTANCE1_sealercoat: 6.0
-axalta/ccscore/dashboard/SPRAYGUN_INDEX_base coat 1: 38.1
-axalta/ccscore/dashboard/SPRAYGUN_INDEX_base coat 2: 50.8
 axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat1: 38.1
 axalta/ccscore/dashboard/SPRAYGUN_INDEX_basecoat2: 50.8
 axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat1: 76.2
 axalta/ccscore/dashboard/SPRAYGUN_INDEX_clearcoat2: 76.2
-axalta/ccscore/dashboard/SPRAYGUN_INDEX_sealer coat: 63.5
 axalta/ccscore/dashboard/SPRAYGUN_INDEX_sealercoat: 63.5
-axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_base coat 1: 5.0
-axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_base coat 2: 8.0
 axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_basecoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_basecoat2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_clearcoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_clearcoat2: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_sealer coat: 5.0
 axalta/ccscore/dashboard/SPRAYGUN_LEFT_OFFSET_sealercoat: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_NAME_base coat 1: Base Coat 1
-axalta/ccscore/dashboard/SPRAYGUN_NAME_base coat 2: Base Coat 2
-axalta/ccscore/dashboard/SPRAYGUN_NAME_basecoat1: basecoat1
-axalta/ccscore/dashboard/SPRAYGUN_NAME_basecoat2: basecoat2
-axalta/ccscore/dashboard/SPRAYGUN_NAME_clearcoat1: clearcoat1
-axalta/ccscore/dashboard/SPRAYGUN_NAME_clearcoat2: clearcoat2
-axalta/ccscore/dashboard/SPRAYGUN_NAME_sealer coat: Sealer Coat
-axalta/ccscore/dashboard/SPRAYGUN_NAME_sealercoat: sealercoat
-axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_base coat 1: 0
-axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_base coat 2: 0
+axalta/ccscore/dashboard/SPRAYGUN_NAME_basecoat1: Base Coat 1
+axalta/ccscore/dashboard/SPRAYGUN_NAME_basecoat2: Base Coat 1
+axalta/ccscore/dashboard/SPRAYGUN_NAME_clearcoat1: Clear Coat 1
+axalta/ccscore/dashboard/SPRAYGUN_NAME_clearcoat2: Clear Coat 2
+axalta/ccscore/dashboard/SPRAYGUN_NAME_sealercoat: Sealer Coat
 axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_basecoat1: 1
 axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_basecoat2: 1
 axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_clearcoat1: 1
 axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_clearcoat2: 0
-axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_sealer coat: 0
 axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_sealercoat: 1
-axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_base coat 1: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_base coat 2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_basecoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_basecoat2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_clearcoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_clearcoat2: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_sealer coat: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_RIGHT_OFFSET_sealercoat: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_base coat 1: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_base coat 2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_basecoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_basecoat2: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_clearcoat1: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_clearcoat2: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_sealer coat: 2.0
 axalta/ccscore/dashboard/SPRAYGUN_TOP_OFFSET_sealercoat: 2.0
-axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_base coat 1: 400.0
-axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_base coat 2: 400.0
-axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat1: 400.0
-axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat2: 400.0
+axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat1: 454.0
+axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_basecoat2: 423.0
 axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat1: 390.0
 axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_clearcoat2: 368.0
-axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealer coat: 490.0
 axalta/ccscore/dashboard/SPRAYGUN_TRAVERSE_SPEED_sealercoat: 490.0
 axalta/ccscore/dashboard/SURFACE_MAPPING_DONE: false
-axalta/ccscore/dashboard/TAPE_COLOR: "#8FB74B"
+axalta/ccscore/dashboard/TAPE_COLOR: '#8FB74B'
 axalta/ccscore/dashboard/ccs_lite_communicate_EMERGENCY: false
 axalta/ccscore/dashboard/password: admin
 axalta/ccscore/dashboard/username: admin
+isEmergencyStopped: not_pressed
+reconnecting_rtde_control: start
+reset_trajectory_planning: false
+robot_state: power_off
 start_trajectory_calculation: false
-axalta/ccscore/dashboard/ARMScanningPositionReached: false
-axalta/ccscore/dashboard/ARMPaintingPositionReached: false
-axalta/ccscore/ccs_lite_communicate_EMERGENCY: false
+user_req_speed: 200.0
+validating_coat: None
+axalta/ccscore/dashboard/SPRAYGUN_NO_OF_LAYERS_Sealer Coat: 0
+axalta/ccscore/dashboard/startSegmentationservercalled : false
